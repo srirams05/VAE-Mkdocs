@@ -452,6 +452,24 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#training-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training 2
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reconstruction-term-in-elbo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reconstruction term in ELBO
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -907,6 +925,85 @@ Since</p>
  e) Compute the batch ELBO <span class="arithmatex">\(\widehat{\mathcal L}_{\rm batch}\)</span> and its gradients w.r.t.\ <span class="arithmatex">\(\phi,\theta\)</span>.<br />
  f) Update <span class="arithmatex">\(\phi,\theta\)</span> by a gradient‐based optimizer.</p>
 <p>After convergence, you have fixed the encoder parameters <span class="arithmatex">\(\phi\)</span> and decoder parameters <span class="arithmatex">\(\theta\)</span>.  At test time you can (i) encode any new <span class="arithmatex">\(y\)</span> to <span class="arithmatex">\(q_\phi(z\mid y)\)</span>, (ii) sample <span class="arithmatex">\(z\sim p(z)\)</span> and decode to generate new data via <span class="arithmatex">\(p_\theta(y\mid z)\)</span>.</p>
+<h2 id="training-2">Training 2<a class="headerlink" href="#training-2" title="Permanent link">&para;</a></h2>
+<p>In the summary above, you introduced <span class="arithmatex">\(t = 1, \cdots, T\)</span>. What is this?</p>
+<p><strong>Answer</strong></p>
+<p>Here, <span class="arithmatex">\(t\)</span> simply indexes the training <em>iterations</em> (or “steps”) of your stochastic optimization loop.  Concretely:</p>
+<ul>
+<li>You run a loop of <span class="arithmatex">\(T\)</span> total gradient‐update steps.  </li>
+<li>At each step <span class="arithmatex">\(t=1,2,\dots,T\)</span>, you  </li>
+<li>sample a mini-batch of data,  </li>
+<li>compute the stochastic estimate of the ELBO,  </li>
+<li>compute its gradients w.r.t.\ <span class="arithmatex">\(\phi,\theta\)</span>, and  </li>
+<li>take a gradient step to update <span class="arithmatex">\(\phi,\theta\)</span>.  </li>
+</ul>
+<p>Thus  </p>
+<div class="arithmatex">\[
+t=1,\dots,T
+\]</div>
+<p>labels each of these updates, and <span class="arithmatex">\(T\)</span> is the total number of such mini-batch update steps you choose to perform.</p>
+<h2 id="reconstruction-term-in-elbo">Reconstruction term in ELBO<a class="headerlink" href="#reconstruction-term-in-elbo" title="Permanent link">&para;</a></h2>
+<p>I need clarification on the reconstruction term in ELBO. Reconstruction should mean that given <span class="arithmatex">\(y_k\)</span>, the VAE generates an estimate <span class="arithmatex">\(\tilde{y}_k\)</span> such that the difference is small in some measure. How does this idea translate to the reconstruction term used in ELBO. Explain in a step by step manner.</p>
+<p><strong>Answer</strong></p>
+<p>Below is a step-by-step account of how the intuitive notion of “reconstruction error”  </p>
+<div class="arithmatex">\[
+\|y_k - \tilde y_k\|
+\]</div>
+<p>is embedded into the ELBO’s reconstruction term<br />
+<span class="arithmatex">\(\displaystyle \mathbb{E}_{q_\phi(z\mid y_k)}[\log p_\theta(y_k\mid z)]\)</span>.</p>
+<p>1  <strong>Choose a probabilistic decoder <span class="arithmatex">\(p_\theta(y\mid z)\)</span></strong>
+    Rather than producing a single point estimate <span class="arithmatex">\(\tilde y_k\)</span>, the decoder outputs a probability density over possible reconstructions.  A common choice for real-valued data is  </p>
+<p>$$
+      p_\theta(y\mid z)
+      =\mathcal{N}!\bigl(y;\,\mu_\theta(z),\,\sigma^2 I\bigr),
+  $$</p>
+<p>where <span class="arithmatex">\(\mu_\theta(z)\in\mathbb{R}^n\)</span> is the decoder’s mean and <span class="arithmatex">\(\sigma^2\)</span> is a (fixed or learned) variance.</p>
+<p>2  <strong>Log-likelihood as “negative reconstruction error”</strong>
+    For a Gaussian likelihood the log-density of observing <span class="arithmatex">\(y_k\)</span> given <span class="arithmatex">\(z\)</span> is</p>
+<p>$$
+      \log p_\theta(y_k\mid z)
+      = -\,\frac{1}{2\sigma^2}\,\bigl|y_k - \mu_\theta(z)\bigr|^2
+        \;-\;\frac{n}{2}\log(2\pi\sigma^2).
+  $$
+    Up to the additive constant <span class="arithmatex">\(-\tfrac{n}{2}\log(2\pi\sigma^2)\)</span>, this is exactly <span class="arithmatex">\(-\tfrac1{2\sigma^2}\)</span> times the squared error between <span class="arithmatex">\(y_k\)</span> and the reconstruction mean <span class="arithmatex">\(\mu_\theta(z)\)</span>.</p>
+<p>3  <strong>Incorporating the encoder uncertainty</strong>
+    The VAE does not pick a single <span class="arithmatex">\(z\)</span> but rather a distribution <span class="arithmatex">\(q_\phi(z\mid y_k)\)</span>.  Hence we take the expectation of the log-likelihood under <span class="arithmatex">\(z\sim q_\phi(z\mid y_k)\)</span>:</p>
+<div class="arithmatex">\[
+  \mathbb{E}_{z\sim q_\phi(z\mid y_k)}\!\bigl[\log p_\theta(y_k\mid z)\bigr]  = 
+  -\,\frac{1}{2\sigma^2}\,
+  \mathbb{E}_{q_\phi}\!\bigl[\|y_k-\mu_\theta(z)\|^2\bigr]
+  \;+\;\text{constant}.
+\]</div>
+<p>Maximizing this term forces the decoder’s mean <span class="arithmatex">\(\mu_\theta(z)\)</span> (averaged over plausible <span class="arithmatex">\(z\)</span> values) to lie close to the true <span class="arithmatex">\(y_k\)</span>.</p>
+<p>4  <strong>Monte-Carlo approximation</strong>
+    In practice we approximate the expectation by drawing one (or a few) samples </p>
+<p>$$
+      z_k = \mu_\phi(y_k)+\sigma_\phi(y_k)\odot\epsilon,
+      \quad
+      \epsilon\sim\mathcal{N}(0,I),
+  $$</p>
+<p>and computing</p>
+<p>$$
+      \log p_\theta(y_k\mid z_k)
+      \;\approx\;
+      -\frac{1}{2\sigma^2}\,\bigl|y_k-\mu_\theta(z_k)\bigr|^2
+      \;+\;\text{const}.
+  $$</p>
+<p>5  <strong>ELBO reconstruction term</strong>
+    Putting it all together, the reconstruction part of the ELBO for datum <span class="arithmatex">\(k\)</span> is</p>
+<div class="arithmatex">\[
+      \mathbb{E}_{q_\phi(z\mid y_k)}\bigl[\log p_\theta(y_k\mid z)\bigr]
+      \;\approx\;
+      -\,\frac{1}{2\sigma^2}\,
+      \|y_k - \mu_\theta(z_k)\|^2
+      \;+\;\text{const}.
+\]</div>
+<p>Thus <strong>maximizing</strong> this expectation is equivalent (up to constants) to <strong>minimizing</strong> the expected squared error     <span class="arithmatex">\(\|y_k-\mu_\theta(z)\|^2\)</span>—i.e.\ the usual reconstruction loss.</p>
+<p>6  <strong>Summary</strong>
+  - The decoder’s density <span class="arithmatex">\(p_\theta(y\mid z)\)</span> turns point-wise reconstruction into a log-likelihood.<br />
+  - For Gaussian <span class="arithmatex">\(p_\theta\)</span>, <span class="arithmatex">\(\log p_\theta(y_k\mid z)\)</span> is (negative) MSE plus a constant.<br />
+  - Taking <span class="arithmatex">\(\mathbb{E}_{q_\phi(z\mid y_k)}\)</span> yields an average reconstruction error weighted by how likely each <span class="arithmatex">\(z\)</span> is under the encoder.<br />
+  - Maximizing this term in the ELBO drives <span class="arithmatex">\(\mu_\theta(z)\)</span> to match <span class="arithmatex">\(y_k\)</span>, exactly implementing the intuitive “reconstruction error” objective.</p>
 
 
 
