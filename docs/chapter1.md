@@ -542,3 +542,111 @@ For \(t=1,\dots,T\) (number of gradient steps):
  f) Update \(\phi,\theta\) by a gradient‐based optimizer.
 
 After convergence, you have fixed the encoder parameters \(\phi\) and decoder parameters \(\theta\).  At test time you can (i) encode any new \(y\) to \(q_\phi(z\mid y)\), (ii) sample \(z\sim p(z)\) and decode to generate new data via \(p_\theta(y\mid z)\).
+
+
+## Training 2
+
+In the summary above, you introduced $t = 1, \cdots, T$. What is this?
+
+**Answer**
+
+Here, \(t\) simply indexes the training _iterations_ (or “steps”) of your stochastic optimization loop.  Concretely:
+
+- You run a loop of \(T\) total gradient‐update steps.  
+- At each step \(t=1,2,\dots,T\), you  
+  1. sample a mini-batch of data,  
+  2. compute the stochastic estimate of the ELBO,  
+  3. compute its gradients w.r.t.\ \(\phi,\theta\), and  
+  4. take a gradient step to update \(\phi,\theta\).  
+
+Thus  
+
+\[
+t=1,\dots,T
+\]
+
+labels each of these updates, and \(T\) is the total number of such mini-batch update steps you choose to perform.
+
+## Reconstruction term in ELBO
+
+I need clarification on the reconstruction term in ELBO. Reconstruction should mean that given $y_k$, the VAE generates an estimate $\tilde{y}_k$ such that the difference is small in some measure. How does this idea translate to the reconstruction term used in ELBO. Explain in a step by step manner.
+
+**Answer**
+
+Below is a step-by-step account of how the intuitive notion of “reconstruction error”  
+
+\[
+\|y_k - \tilde y_k\|
+\]
+
+is embedded into the ELBO’s reconstruction term  
+\(\displaystyle \mathbb{E}_{q_\phi(z\mid y_k)}[\log p_\theta(y_k\mid z)]\).
+
+1  **Choose a probabilistic decoder \(p_\theta(y\mid z)\)**
+    Rather than producing a single point estimate \(\tilde y_k\), the decoder outputs a probability density over possible reconstructions.  A common choice for real-valued data is  
+
+  $$
+      p_\theta(y\mid z)
+      =\mathcal{N}\!\bigl(y;\,\mu_\theta(z),\,\sigma^2 I\bigr),
+  $$
+
+  where \(\mu_\theta(z)\in\mathbb{R}^n\) is the decoder’s mean and \(\sigma^2\) is a (fixed or learned) variance.
+
+2  **Log-likelihood as “negative reconstruction error”**
+    For a Gaussian likelihood the log-density of observing \(y_k\) given \(z\) is
+
+  $$
+      \log p_\theta(y_k\mid z)
+      = -\,\frac{1}{2\sigma^2}\,\bigl\|y_k - \mu_\theta(z)\bigr\|^2
+        \;-\;\frac{n}{2}\log(2\pi\sigma^2).
+  $$
+    Up to the additive constant \(-\tfrac{n}{2}\log(2\pi\sigma^2)\), this is exactly \(-\tfrac1{2\sigma^2}\) times the squared error between \(y_k\) and the reconstruction mean \(\mu_\theta(z)\).
+
+3  **Incorporating the encoder uncertainty**
+    The VAE does not pick a single \(z\) but rather a distribution \(q_\phi(z\mid y_k)\).  Hence we take the expectation of the log-likelihood under \(z\sim q_\phi(z\mid y_k)\):
+
+$$
+  \mathbb{E}_{z\sim q_\phi(z\mid y_k)}\!\bigl[\log p_\theta(y_k\mid z)\bigr]  = 
+  -\,\frac{1}{2\sigma^2}\,
+  \mathbb{E}_{q_\phi}\!\bigl[\|y_k-\mu_\theta(z)\|^2\bigr]
+  \;+\;\text{constant}.
+$$
+
+  Maximizing this term forces the decoder’s mean \(\mu_\theta(z)\) (averaged over plausible \(z\) values) to lie close to the true \(y_k\).
+
+4  **Monte-Carlo approximation**
+    In practice we approximate the expectation by drawing one (or a few) samples 
+
+  $$
+      z_k = \mu_\phi(y_k)+\sigma_\phi(y_k)\odot\epsilon,
+      \quad
+      \epsilon\sim\mathcal{N}(0,I),
+  $$
+
+  and computing
+
+  $$
+      \log p_\theta(y_k\mid z_k)
+      \;\approx\;
+      -\frac{1}{2\sigma^2}\,\bigl\|y_k-\mu_\theta(z_k)\bigr\|^2
+      \;+\;\text{const}.
+  $$
+
+5  **ELBO reconstruction term**
+    Putting it all together, the reconstruction part of the ELBO for datum \(k\) is
+
+$$
+      \mathbb{E}_{q_\phi(z\mid y_k)}\bigl[\log p_\theta(y_k\mid z)\bigr]
+      \;\approx\;
+      -\,\frac{1}{2\sigma^2}\,
+      \|y_k - \mu_\theta(z_k)\|^2
+      \;+\;\text{const}.
+$$
+
+   Thus **maximizing** this expectation is equivalent (up to constants) to **minimizing** the expected squared error     \(\|y_k-\mu_\theta(z)\|^2\)—i.e.\ the usual reconstruction loss.
+
+6  **Summary**
+  - The decoder’s density \(p_\theta(y\mid z)\) turns point-wise reconstruction into a log-likelihood.  
+  - For Gaussian \(p_\theta\), \(\log p_\theta(y_k\mid z)\) is (negative) MSE plus a constant.  
+  - Taking \(\mathbb{E}_{q_\phi(z\mid y_k)}\) yields an average reconstruction error weighted by how likely each \(z\) is under the encoder.  
+  - Maximizing this term in the ELBO drives \(\mu_\theta(z)\) to match \(y_k\), exactly implementing the intuitive “reconstruction error” objective.
