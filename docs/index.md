@@ -1,16 +1,20 @@
-# Notes on Reinforcement Learning
+# Notes on Variational Autoencoders
+
 
 
 
 ## About the Book
-This book covers fundamental concepts of RL. We follow the excellent book:
-Shiyu Zhao, "Mathematical Foundations of Reinforcement Learning".
+These notes on basic VAE architecture and extensions. We somewhat follow the notes:
 
-We use the GPT4-o1 to augment the book. These notes are the outcome of a chat session with o1
-using prompts to clarify concepts as we follow the book.
+***Dynamical Variational
+Autoencoders: A Comprehensive
+Review*** 
+Laurent Girin, Simon Leglaive, Xiaoyu Bie, Julien Diard
+
+We use GPT-o1 and o4-mini for the Q&A which make up these notes.
 
 
 ## Chapters Overview (for sidebar on Home page)
 
-*   [Chapter 1: Basics](chapter1.md)
-*   [Chapter 2: Temp](chapter2.md)
+*   [Chapter 1: Basic VAE](chapter1.md)
+*   [Chapter 2: Extension to Tranformer encoder](chapter2.md)
