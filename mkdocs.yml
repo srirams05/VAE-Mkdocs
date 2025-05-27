@@ -1,0 +1,58 @@
+site_name: Reinforcement Learning Notes
+site_url: https://your-username.github.io/RL-Mkdocs/
+
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky  # This enables tabs AND makes them sticky.
+    - navigation.sections     # Helps with rendering sections in the sidebar if needed
+    - toc.integrate           # CRUCIAL: This moves the page TOC into the left sidebar
+    - navigation.top
+    - content.code.copy       # Added for completeness, good feature
+    - content.code.annotate   # Added for completeness, good 
+    - palette.toggle
+  palette:
+    # Palette for light mode
+    - scheme: default
+      primary: indigo
+      accent: blue
+    # Palette for dark mode
+    - scheme: slate
+      primary: blue
+      accent: lightblue
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+markdown_extensions:
+  # For Table of Contents within a page
+  - toc:
+      permalink: true # Adds anchor links to headings
+      toc_depth: "1-4"  # Show H2, H3, H4 in the page's TOC
+
+  # For LaTeX math (inline and display)
+  - pymdownx.arithmatex:
+      generic: true
+  # For TOC
+  - attr_list
+  - md_in_html
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/eruda # Load Eruda first
+  - javascripts/eruda_init.js         # Your script to initialize Eruda (optional but good)
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - assets/css/extra.css
+
+nav:
+  - 'Home': 'index.md'  # Your landing page
+  - 'Chapter 1: Reinforcement Learning basics': 'chapter1.md'
+  - 'Chapter 2: TestMath': 'chapter2.md'
+
+
+repo_url: https://github.com/srirams05/RL-Mkdocs
+repo_name: GitHub

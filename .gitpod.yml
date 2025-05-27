@@ -1,0 +1,31 @@
+# .gitpod.yml
+image: gitpod/workspace-python-3.11 # Or a newer Python version if available/needed
+
+tasks:
+  - name: Install Dependencies & Start MkDocs
+    init: | # Runs only once when the workspace is first created or after a rebuild
+      echo "Installing MkDocs and Material theme..."
+      pip install mkdocs mkdocs-material pymdown-extensions
+      echo "Dependencies installed."
+      # Optional: Create a basic MkDocs project if it doesn't exist
+      # This helps if you're starting from a completely empty repo
+      # but we'll do it manually first for learning.
+      # if [ ! -f mkdocs.yml ]; then
+      #  mkdocs new .
+      # fi
+    command: | # Runs every time the workspace starts
+      echo "Starting MkDocs development server..."
+      # Wait for dependencies to be fully available if needed (sometimes pip takes a moment)
+      # sleep 5 # Uncomment if you see "mkdocs command not found" on startup
+      mkdocs serve --dev-addr=0.0.0.0:8000
+
+ports:
+  - port: 8000 # MkDocs default port
+    onOpen: open-preview # Automatically open a preview tab in Gitpod
+
+# Optional: VS Code Extensions to install automatically
+vscode:
+  extensions:
+    - ms-python.python
+    - yzhang.markdown-all-in-one
+    - pkief.material-icon-theme
