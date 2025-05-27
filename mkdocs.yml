@@ -1,4 +1,4 @@
-site_name: Reinforcement Learning Notes
+site_name: VAE Notes
 site_url: https://your-username.github.io/RL-Mkdocs/
 
 
@@ -50,9 +50,9 @@ extra_css:
 
 nav:
   - 'Home': 'index.md'  # Your landing page
-  - 'Chapter 1: Reinforcement Learning basics': 'chapter1.md'
-  - 'Chapter 2: TestMath': 'chapter2.md'
+  - 'Chapter 1: VAE Basics': 'chapter1.md'
+  - 'Chapter 2: Transformer VAE': 'chapter2.md'
 
 
-repo_url: https://github.com/srirams05/RL-Mkdocs
+repo_url: https://github.com/srirams05/VAE-Mkdocs
 repo_name: GitHub
