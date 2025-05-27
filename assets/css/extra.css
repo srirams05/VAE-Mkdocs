@@ -1,0 +1,64 @@
+/* docs/assets/css/extra.css */
+
+/* 1. Ensure the overall content area can be wide */
+.md-container {
+  /* Set a generous max-width for the outermost container,
+     allowing it to be wider than the default 1220px.
+     e.g., 90rem (1440px), which is wider than your 1376px viewport.
+     This means it won't constrain the .md-main__inner.md-grid.
+  */
+  max-width: 90rem;
+}
+
+/* 2. Allow the main grid (containing sidebar and content) to use available width */
+.md-main__inner.md-grid {
+  /* This allows this grid to expand to the width of .md-container,
+     effectively filling your viewport (1376px in your case)
+     and removing its own centering margins.
+  */
+  max-width: none;
+}
+
+/* 1. Make sidebar and all nav containers as wide as needed */
+.md-sidebar,
+.md-sidebar .md-sidebar__scrollwrap,
+.md-sidebar .md-sidebar__inner,
+.md-sidebar .md-nav,
+.md-sidebar .md-nav--secondary,
+.md-sidebar .md-nav__list,
+.md-sidebar .md-nav__item {
+  width: 16rem !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* 2. Make ToC links use full width and allow text wrapping */
+.md-sidebar .md-nav--secondary .md-nav__link {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding-left: 1.2rem !important;
+  padding-right: 1.2rem !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+  min-width: 0 !important;
+}
+
+/* 3. Make the .md-ellipsis span inside ToC links expand and wrap */
+.md-sidebar .md-nav--secondary .md-nav__link .md-ellipsis {
+  max-width: 100% !important;
+  text-overflow: unset !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  display: inline !important;
+}
+
+/* 4. (Optional) Remove extra indent on nested ToC items */
+.md-sidebar .md-nav--secondary .md-nav__item .md-nav__link {
+  padding-left: 1.6rem !important;
+}

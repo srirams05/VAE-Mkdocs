@@ -1,0 +1,979 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://your-username.github.io/RL-Mkdocs/chapter1/">
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../chapter2/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Chapter 1: Reinforcement Learning basics - Reinforcement Learning Notes</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/css/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vae-architecture-1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Reinforcement Learning Notes" class="md-header__button md-logo" aria-label="Reinforcement Learning Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Reinforcement Learning Notes
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Chapter 1: Reinforcement Learning basics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="lightblue"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/srirams05/RL-Mkdocs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Chapter 1: Reinforcement Learning basics
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../chapter2/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Chapter 2: TestMath
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Reinforcement Learning Notes" class="md-nav__button md-logo" aria-label="Reinforcement Learning Notes" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Reinforcement Learning Notes
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/srirams05/RL-Mkdocs" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Chapter 1: Reinforcement Learning basics
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chapter 1: Reinforcement Learning basics
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#vae-architecture-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      VAE Architecture 1
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vae-architecture-2-encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      VAE Architecture 2 - Encoder
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vae-architecture-3-encoder-contd" class="md-nav__link">
+    <span class="md-ellipsis">
+      VAE Architecture 3 - Encoder (contd)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sampling-the-latent-variable-z-reparameterization-trick" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sampling the latent variable \(z\): Reparameterization trick
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reparameterization-trick-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Reparameterization Trick 2
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vae-architecture-4-decoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      VAE Architecture 4 - Decoder
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#training" class="md-nav__link">
+    <span class="md-ellipsis">
+      Training
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chapter2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Chapter 2: TestMath
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Chapter 1: Reinforcement Learning basics</h1>
+
+<h2 id="vae-architecture-1">VAE Architecture 1<a class="headerlink" href="#vae-architecture-1" title="Permanent link">&para;</a></h2>
+<p>Let <span class="arithmatex">\(y_k\)</span> be measurements of a data generating process. I would like to use the Variational Autoencoder method of statistical inference, to learn about the data generating process. Describe the details of the VAE to accomplish this.</p>
+<p><strong>Answer</strong></p>
+<p>Below is a self-contained description of how to set up and train a Variational Autoencoder (VAE) to infer the data-generating process behind measurements <span class="arithmatex">\(y_k\)</span>.  All formulas are in standard LaTeX.</p>
+<p>1 <strong>Model specification</strong>
+   We introduce a low-dimensional latent variable <span class="arithmatex">\(z\in\mathbb R^d\)</span>.  The generative model (decoder) and the inference model (encoder) are</p>
+<div class="arithmatex">\[
+     \text{Prior:}\quad p(z)=\mathcal N\bigl(z;0,I\bigr),
+     \quad
+     \text{Likelihood:}\quad p_\theta(y\mid z),
+\]</div>
+<div class="arithmatex">\[
+     \text{Approx.\ posterior:}\quad
+     q_\phi(z\mid y)
+     =\mathcal N\bigl(z;\,\mu_\phi(y),\,\mathrm{diag}(\sigma_\phi^2(y))\bigr).
+\]</div>
+<p>Here <span class="arithmatex">\(\theta\)</span> are the parameters of the decoder network (which outputs parameters of <span class="arithmatex">\(p_\theta(y\mid z)\)</span>), and <span class="arithmatex">\(\phi\)</span> are the parameters of the encoder network (which outputs <span class="arithmatex">\(\mu_\phi(y)\)</span> and <span class="arithmatex">\(\sigma_\phi(y)\)</span>).</p>
+<p>2 <strong>Evidence Lower BOund (ELBO)</strong>
+   For a single datum <span class="arithmatex">\(y\)</span>, the marginal log-likelihood <span class="arithmatex">\(\log p_\theta(y)\)</span> is intractable.  We instead maximize the ELBO</p>
+<div class="arithmatex">\[
+     \mathcal L(\theta,\phi\,;\,y)
+     \;=\;
+     \mathbb{E}_{q_\phi(z\mid y)}\bigl[\log p_\theta(y\mid z)\bigr]
+     \;-\;
+     D_{\mathrm{KL}}\bigl(q_\phi(z\mid y)\;\|\;p(z)\bigr),
+\]</div>
+<p>which satisfies <span class="arithmatex">\(\log p_\theta(y)\ge\mathcal L(\theta,\phi;y)\)</span>.  Over a dataset <span class="arithmatex">\(\{y_k\}_{k=1}^N\)</span> we maximize</p>
+<div class="arithmatex">\[
+     \mathcal L_{\rm total}(\theta,\phi)
+     = \sum_{k=1}^N \mathcal L(\theta,\phi\,;\,y_k).
+\]</div>
+<p>3 <strong>Reparameterization trick</strong>
+   To backpropagate through the stochastic sampling <span class="arithmatex">\(z\sim q_\phi(z\mid y)\)</span>, we write</p>
+<div class="arithmatex">\[
+     z \;=\;\mu_\phi(y)\;+\;\sigma_\phi(y)\odot\epsilon,
+     \quad
+     \epsilon\sim\mathcal N(0,I).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+     \mathbb{E}_{q_\phi(z\mid y)}\bigl[\log p_\theta(y\mid z)\bigr]
+     \;=\;
+     \mathbb{E}_{\epsilon\sim\mathcal N(0,I)}
+     \bigl[\log p_\theta\bigl(y\mid \mu_\phi(y)+\sigma_\phi(y)\odot\epsilon\bigr)\bigr],
+\]</div>
+<p>which can be unbiasedly estimated with Monte Carlo and differentiated w.r.t.\ <span class="arithmatex">\(\phi\)</span>.</p>
+<p>4 <strong>KL-divergence term</strong>
+   For two Gaussians <span class="arithmatex">\(q=\mathcal N(\mu,\mathrm{diag}(\sigma^2))\)</span> and <span class="arithmatex">\(p=\mathcal N(0,I)\)</span>,</p>
+<div class="arithmatex">\[
+     D_{\rm KL}\bigl(q\|p\bigr)
+     =\frac12\sum_{i=1}^d
+       \bigl[
+         \sigma_i^2+\mu_i^2-1-\log(\sigma_i^2)
+       \bigr].
+\]</div>
+<p>5 <strong>Overall training algorithm</strong>
+   Use mini-batches <span class="arithmatex">\(\{y^{(b)}\}\)</span>.  For each batch:
+   a) Encode: compute <span class="arithmatex">\(\mu_\phi(y^{(b)})\)</span>, <span class="arithmatex">\(\sigma_\phi(y^{(b)})\)</span>.<br />
+   b) Sample <span class="arithmatex">\(\epsilon\sim\mathcal N(0,I)\)</span>, form <span class="arithmatex">\(z=\mu_\phi+\sigma_\phi\odot\epsilon\)</span>.<br />
+   c) Decode: compute <span class="arithmatex">\(\log p_\theta(y^{(b)}\mid z)\)</span>.<br />
+   d) Compute batch ELBO </p>
+<div class="arithmatex">\[
+        \mathcal L_{\rm batch}
+         =\frac1B\sum_{i=1}^B
+          \Bigl[\log p_\theta(y^{(i)}\!\mid z^{(i)})
+            -D_{\rm KL}(q_\phi(z^{(i)}\mid y^{(i)})\|p(z))\Bigr].
+\]</div>
+<p>e) Take gradient <span class="arithmatex">\(\nabla_{\theta,\phi}\mathcal L_{\rm batch}\)</span> (e.g.\ via Adam) and update <span class="arithmatex">\(\theta,\phi\)</span>.</p>
+<p>6 <strong>Choice of decoders</strong>
+   – For real-valued <span class="arithmatex">\(y\)</span>: use Gaussian likelihood<br />
+<span class="arithmatex">\(\;p_\theta(y\mid z)=\mathcal N(y;\,\mu_\theta(z),\,\mathrm{diag}(\sigma_y^2))\)</span>.<br />
+   – For binary <span class="arithmatex">\(y\)</span>: use Bernoulli<br />
+<span class="arithmatex">\(\;p_\theta(y\mid z)=\mathrm{Bernoulli}(y;\,\pi_\theta(z)).\)</span></p>
+<p>7 <strong>Inference about the data-generating process</strong>
+   After training, the decoder <span class="arithmatex">\(p_\theta(y\mid z)\)</span> and the aggregated posterior give you a generative model of the data.  You can<br />
+   • Sample new synthetic observations <span class="arithmatex">\(y\sim p_\theta(y\mid z)\)</span> by first drawing <span class="arithmatex">\(z\sim p(z)\)</span>.<br />
+   • Approximate the latent representation of any <span class="arithmatex">\(y\)</span> by <span class="arithmatex">\(q_\phi(z\mid y)\)</span>.<br />
+   • Inspect learned features by varying individual components of <span class="arithmatex">\(z\)</span> and decoding.</p>
+<p>This completes the detailed VAE setup for learning the underlying data-generating process from measurements <span class="arithmatex">\(y_k\)</span>.</p>
+<h2 id="vae-architecture-2-encoder">VAE Architecture 2 - Encoder<a class="headerlink" href="#vae-architecture-2-encoder" title="Permanent link">&para;</a></h2>
+<p>Let’s make the setting more precise: the measurements <span class="arithmatex">\(y_k \in \mathbb{R}^n\)</span> and the index <span class="arithmatex">\(k\)</span>. Let <span class="arithmatex">\(Y \in \mathbb{R}^n\)</span> be the random variable (vector) and the <span class="arithmatex">\(y_k\)</span> are the observations or realizations of it. </p>
+<p>The encoder takes as input the <span class="arithmatex">\(y_k\)</span>  and models a probability distribution <span class="arithmatex">\(q_{\phi}(z | y)\)</span>. Thus, for each <span class="arithmatex">\((k, y_k)\)</span>, the encoder introduces a <span class="arithmatex">\(z_k\)</span>. Is this understanding correct so far?</p>
+<p><strong>Answer</strong></p>
+<p>Yes—your understanding is exactly right.  In a VAE we introduce for each observation <span class="arithmatex">\(y_k\)</span> a corresponding latent variable <span class="arithmatex">\(z_k\)</span>, and the encoder network “amortizes” inference by outputting an approximate posterior over <span class="arithmatex">\(z\)</span> given <span class="arithmatex">\(y\)</span>.  Concretely, one usually chooses</p>
+<div class="arithmatex">\[
+q_{\phi}(z\mid y)
+=\mathcal N\bigl(z;\,\mu_{\phi}(y),\,\mathrm{diag}(\sigma_{\phi}^2(y))\bigr),
+\]</div>
+<p>so that for each data point <span class="arithmatex">\(y_k\)</span> you have</p>
+<div class="arithmatex">\[
+q_{\phi}(z\mid y_k)
+=\mathcal N\bigl(z;\,\mu_{\phi}(y_k),\,\mathrm{diag}(\sigma_{\phi}^2(y_k))\bigr).
+\]</div>
+<p>During training (and inference) you then draw</p>
+<div class="arithmatex">\[
+z_k \;=\;\mu_{\phi}(y_k)\;+\;\sigma_{\phi}(y_k)\odot\epsilon_k,
+\qquad
+\epsilon_k\sim\mathcal N(0,I),
+\]</div>
+<p>and pass <span class="arithmatex">\(z_k\)</span> into the decoder <span class="arithmatex">\(p_{\theta}(y\mid z)\)</span>.  Thus each <span class="arithmatex">\((k,y_k)\)</span> is associated with its own latent <span class="arithmatex">\(z_k\)</span>, but the map <span class="arithmatex">\(y\mapsto(\mu_{\phi}(y),\sigma_{\phi}(y))\)</span> is shared across all <span class="arithmatex">\(k\)</span>.</p>
+<h2 id="vae-architecture-3-encoder-contd">VAE Architecture 3 - Encoder (contd)<a class="headerlink" href="#vae-architecture-3-encoder-contd" title="Permanent link">&para;</a></h2>
+<p>The encoder map <span class="arithmatex">\(y \mapsto (\mu_{\phi}(y), \sigma_{\phi}(y))\)</span> is modeled as a neural network which takes as input the <span class="arithmatex">\(y\)</span> and outputs <span class="arithmatex">\((\mu_{\phi}(y), \sigma_{\phi}(y))\)</span> which are the mean and standard deviation of a Gaussian distribution. So in fact, for each <span class="arithmatex">\(y_k\)</span>, there is a unique Gaussian distribution from which the corresponding <span class="arithmatex">\(z_k\)</span> is drawn. Is this correct?</p>
+<p><strong>Answer</strong></p>
+<p>Yes.  Concretely, the encoder is a deterministic function  </p>
+<div class="arithmatex">\[
+y\;\mapsto\;\bigl(\mu_\phi(y),\,\sigma_\phi(y)\bigr)\in\mathbb R^d\times\mathbb R^d_{&gt;0},
+\]</div>
+<p>so that for each observation <span class="arithmatex">\(y_k\)</span> you obtain parameters of a Gaussian,  </p>
+<div class="arithmatex">\[
+q_\phi(z\mid y_k)
+=\mathcal N\bigl(z;\,\mu_\phi(y_k),\,\mathrm{diag}(\sigma_\phi(y_k)^2)\bigr).
+\]</div>
+<p>You then draw  </p>
+<div class="arithmatex">\[
+z_k \;=\;\mu_\phi(y_k)\;+\;\sigma_\phi(y_k)\odot\epsilon_k,
+\quad
+\epsilon_k\sim\mathcal N(0,I),
+\]</div>
+<p>so indeed each <span class="arithmatex">\(y_k\)</span> induces its own Gaussian from which <span class="arithmatex">\(z_k\)</span> is sampled.</p>
+<h2 id="sampling-the-latent-variable-z-reparameterization-trick">Sampling the latent variable <span class="arithmatex">\(z\)</span>: Reparameterization trick<a class="headerlink" href="#sampling-the-latent-variable-z-reparameterization-trick" title="Permanent link">&para;</a></h2>
+<p>It would seem that sampling <span class="arithmatex">\(z_k\)</span> from the Gaussian directly, that is $ z_k \sim \mathcal{N}(z; \mu_{\phi}(y_k), diag(\sigma_{\phi}(y_k)^2))$ is more natural than in the manner you describe.</p>
+<p><strong>Answer</strong></p>
+<p>Your intuition is absolutely right: in the VAE we do want to “really” draw  </p>
+<div class="arithmatex">\[
+z_k \;\sim\;\mathcal N\!\bigl(\mu_{\phi}(y_k)\,,\,\mathrm{diag}(\sigma_{\phi}(y_k)^2)\bigr)
+\]</div>
+<p>for each data‐point <span class="arithmatex">\(y_k\)</span>.  The reason we write it in the form</p>
+<div class="arithmatex">\[
+z_k \;=\;\mu_{\phi}(y_k)\;+\;\sigma_{\phi}(y_k)\odot\epsilon_k,
+\quad
+\epsilon_k\sim\mathcal N(0,I)
+\]</div>
+<p>is simply a <em>reparameterization</em> of that same Gaussian draw.  Algebraically the two are equivalent.  The reparameterization is introduced only so that when you back‐propagate the reconstruction‐loss </p>
+<div class="arithmatex">\[
+\mathbb{E}_{q_\phi(z\mid y_k)}\bigl[\log p_\theta(y_k\mid z)\bigr]
+\]</div>
+<p>through the encoder network, you get low‐variance, unbiased gradients w.r.t.\ <span class="arithmatex">\(\phi\)</span>.  </p>
+<p>If you were to write  </p>
+<div class="arithmatex">\[
+z_k \;\sim\;\mathcal N\bigl(\mu_{\phi}(y_k),\,\mathrm{diag}(\sigma_{\phi}(y_k)^2)\bigr)
+\]</div>
+<p>and then try to differentiate directly through that sampling operation, the path from <span class="arithmatex">\(\phi\)</span> into the sample <span class="arithmatex">\(z_k\)</span> would be <em>discontinuous</em> and you would have to resort to score‐function estimators (REINFORCE), which typically have much higher variance.</p>
+<p>Thus:<br />
+1  Yes, each <span class="arithmatex">\(y_k\)</span> defines its own Gaussian for <span class="arithmatex">\(z_k\)</span>.<br />
+2  Writing the draw via  </p>
+<div class="arithmatex">\[
+     z_k = \mu_\phi(y_k) + \sigma_\phi(y_k)\odot\epsilon_k
+\]</div>
+<p>is just a mathematically equivalent way of expressing  </p>
+<div class="arithmatex">\[
+     z_k\sim\mathcal N\bigl(\mu_\phi(y_k),\,\mathrm{diag}(\sigma_\phi(y_k)^2)\bigr)
+\]</div>
+<p>that makes it possible to back‐propagate gradients through the random draw.</p>
+<h2 id="reparameterization-trick-2">Reparameterization Trick 2<a class="headerlink" href="#reparameterization-trick-2" title="Permanent link">&para;</a></h2>
+<p>Show the mathematical equivalence of the two ways of drawing <span class="arithmatex">\(z_k\)</span> rigorously.</p>
+<p><strong>Answer</strong></p>
+<p>Below is a standard “change‐of‐variables” proof (using the Jacobian) and an alternative proof via moment‐generating functions, which together show rigorously that</p>
+<div class="arithmatex">\[
+z=\mu+\sigma\odot\epsilon,\quad\epsilon\sim\mathcal N(0,I_d)
+\]</div>
+<p>has exactly the same law as</p>
+<div class="arithmatex">\[
+z\sim\mathcal N\bigl(\mu,\;\mathrm{diag}(\sigma^2)\bigr).
+\]</div>
+<p>1  <strong>Change‐of‐variables (Jacobian) proof</strong>
+   Let <span class="arithmatex">\(d\)</span> be the dimension of <span class="arithmatex">\(z\)</span>.  Write <span class="arithmatex">\(\sigma=(\sigma_1,\dots,\sigma_d)\)</span> and define the diagonal matrix</p>
+<p>$$
+     \Sigma=\mathrm{diag}(\sigma_1,\dots,\sigma_d)\in\mathbb R^{d\times d}.
+   $$</p>
+<p>We draw</p>
+<p>$$
+     \epsilon\sim p_\epsilon(\epsilon)
+     =\frac1{(2\pi)^{d/2}}
+       \exp!\Bigl(-\tfrac12\,\epsilon^\top\epsilon\Bigr),
+     \qquad
+     z \;=\;\mu+\Sigma\,\epsilon.
+   $$</p>
+<p>Since the map</p>
+<p>$$
+     T:\;\epsilon\mapsto z=T(\epsilon)=\mu+\Sigma\,\epsilon
+   $$</p>
+<p>is invertible with</p>
+<p>$$
+     T^{-1}(z)=\Sigma^{-1}(z-\mu),
+     \quad
+     \det\Bigl(\tfrac{\partial T^{-1}}{\partial z}\Bigr)
+     =\det(\Sigma^{-1})
+     =\prod_{i=1}^d\frac1{\sigma_i}\,,
+   $$</p>
+<p>the density of <span class="arithmatex">\(z\)</span> is</p>
+<div class="arithmatex">\[
+     p_z(z)      =p_\epsilon\bigl(T^{-1}(z)\bigr)
+      \;\Bigl|\det\bigl(\tfrac{\partial T^{-1}}{\partial z}\bigr)\Bigr|
+     =\frac1{(2\pi)^{d/2}}
+      \exp\!\Bigl(-\tfrac12\|\Sigma^{-1}(z-\mu)\|^2\Bigr)
+      \;\prod_{i=1}^d\frac1{\sigma_i}.
+\]</div>
+<p>Noting 
+   <span class="arithmatex">\(\|\Sigma^{-1}(z-\mu)\|^2=\sum_i\frac{(z_i-\mu_i)^2}{\sigma_i^2}\)</span>
+   and <span class="arithmatex">\(\prod_i\sigma_i^{-1}=(\det\Sigma)^{-1}\)</span>, this becomes</p>
+<p>$$
+     p_z(z)
+     =\frac1{(2\pi)^{d/2}\,\prod_i\sigma_i}
+      \exp!\Bigl(-\tfrac12\sum_{i=1}^d\frac{(z_i-\mu_i)^2}{\sigma_i^2}\Bigr),
+   $$</p>
+<p>which is <em>exactly</em> the density of <span class="arithmatex">\(\mathcal N(\mu,\mathrm{diag}(\sigma^2))\)</span>.</p>
+<p>2  <strong>Moment‐Generating‐Function (MGF) proof</strong>
+   Recall the MGF of a random vector <span class="arithmatex">\(w\)</span> is <span class="arithmatex">\(M_w(t)=\mathbb E[e^{t^\top w}]\)</span>.  If <span class="arithmatex">\(w\sim\mathcal N(0,I)\)</span>, then <span class="arithmatex">\(M_w(t)=\exp(\tfrac12\,t^\top t)\)</span>.  Now set</p>
+<p>$$
+     z=\mu+\Sigma\,\epsilon,
+     \quad
+     \epsilon\sim\mathcal N(0,I).
+   $$</p>
+<p>Then for any <span class="arithmatex">\(t\in\mathbb R^d\)</span>,</p>
+<div class="arithmatex">\[
+     M_z(t)
+     =\mathbb E\bigl[e^{t^\top z}\bigr]
+     =\mathbb E\bigl[e^{\,t^\top(\mu+\Sigma\epsilon)}\bigr]
+     =e^{\,t^\top\mu}\;\mathbb E\bigl[e^{\,(t^\top\Sigma)\epsilon}\bigr]
+     =e^{\,t^\top\mu}\;\exp\!\Bigl(\tfrac12\,(t^\top\Sigma)(t^\top\Sigma)^\top\Bigr).
+\]</div>
+<p>But <span class="arithmatex">\((t^\top\Sigma)(t^\top\Sigma)^\top=t^\top\,\Sigma^2\,t\)</span> and <span class="arithmatex">\(\Sigma^2=\mathrm{diag}(\sigma^2)\)</span>.  Hence</p>
+<p>$$
+     M_z(t)
+     =\exp!\Bigl(t^\top\mu+\tfrac12\,t^\top\mathrm{diag}(\sigma^2)\,t\Bigr),
+   $$</p>
+<p>which is <em>precisely</em> the MGF of <span class="arithmatex">\(\mathcal N(\mu,\mathrm{diag}(\sigma^2))\)</span>.  By uniqueness of MGFs,  </p>
+<p>$$
+     z\;\sim\;\mathcal N\bigl(\mu,\mathrm{diag}(\sigma^2)\bigr).
+   $$</p>
+<p>Conclusion: drawing </p>
+<div class="arithmatex">\[
+z_k\;\sim\;\mathcal N\bigl(\mu_\phi(y_k),\,\mathrm{diag}(\sigma_\phi(y_k)^2)\bigr)
+\]</div>
+<p><em>at</em> the sampling step is mathematically equivalent to writing </p>
+<div class="arithmatex">\[
+z_k=\mu_\phi(y_k)+\sigma_\phi(y_k)\odot\epsilon_k,
+\quad
+\epsilon_k\sim\mathcal N(0,I),
+\]</div>
+<p>since both constructions produce the same Gaussian law for <span class="arithmatex">\(z_k\)</span>.</p>
+<h2 id="vae-architecture-4-decoder">VAE Architecture 4 - Decoder<a class="headerlink" href="#vae-architecture-4-decoder" title="Permanent link">&para;</a></h2>
+<p>For the decoder, it appears we have a neural network which models  <span class="arithmatex">\(p_\theta(y\mid z)=\mathcal N(y;\,\mu_\theta(z),\,\mathrm{diag}(\sigma_{\theta}^2(z)))\)</span>. The input to this neural network is <span class="arithmatex">\(z_k\)</span> and the output are the Gaussian parameters <span class="arithmatex">\(\mu_{\theta}(z_k)\)</span> and <span class="arithmatex">\(\sigma_{\theta}(z_k)\)</span>. The reconstruction <span class="arithmatex">\(\tilde{y}_k\)</span> is drawn from this Gaussian distribution.</p>
+<p><strong>Answer</strong></p>
+<p>Yes, that’s exactly the usual Gaussian‐decoder VAE.  Concretely:</p>
+<p>1 <strong>Decoder network</strong>
+   You have a deterministic neural network  </p>
+<div class="arithmatex">\[
+     z\;\longmapsto\;\bigl(\mu_\theta(z),\,\sigma_\theta(z)\bigr)
+     \;\in\;\mathbb R^n\times\mathbb R^n_{&gt;0},
+\]</div>
+<p>parameterized by <span class="arithmatex">\(\theta\)</span>.  Here <span class="arithmatex">\(\mu_\theta(z)\)</span> and <span class="arithmatex">\(\sigma_\theta(z)\)</span> are the per-coordinate means and standard deviations of your Gaussian likelihood.</p>
+<p>2 <strong>Likelihood</strong>
+   Given a latent <span class="arithmatex">\(z_k\)</span>, you define</p>
+<div class="arithmatex">\[
+     p_\theta\bigl(y\mid z_k\bigr)
+     =\mathcal N\!\bigl(y\;;\;\mu_\theta(z_k),\;\mathrm{diag}(\sigma_\theta(z_k)^2)\bigr).
+\]</div>
+<p>3 <strong>Reconstruction sample</strong>
+   To generate (or “reconstruct”) a sample <span class="arithmatex">\(\tilde y_k\)</span> from the decoder you draw</p>
+<p>$$
+     \tilde y_k
+     \;=\;\mu_\theta(z_k)\;+\;\sigma_\theta(z_k)\odot\epsilon,
+     \qquad
+     \epsilon\sim\mathcal N(0,I_n).
+   $$</p>
+<p>Equivalently,</p>
+<p>$$
+     \tilde y_k\;\sim\;\mathcal N!\bigl(\mu_\theta(z_k),\,\mathrm{diag}(\sigma_\theta(z_k)^2)\bigr).
+   $$</p>
+<p>4 <strong>ELBO term</strong>
+   In practice, when computing the reconstruction term of the ELBO you don’t need to draw <span class="arithmatex">\(\tilde y_k\)</span> explicitly.  You compute</p>
+<div class="arithmatex">\[
+     \mathbb E_{q_\phi(z\mid y_k)}\Bigl[\log p_\theta(y_k\mid z)\Bigr]
+     \;\approx\;
+     \frac1L\sum_{\ell=1}^{L}
+     \log \mathcal N\!\bigl(y_k\;;\;\mu_\theta(z_k^{(\ell)}),\,\mathrm{diag}(\sigma_\theta(z_k^{(\ell)})^2)\bigr)
+\]</div>
+<p>using samples <span class="arithmatex">\(z_k^{(\ell)}\)</span> from <span class="arithmatex">\(q_\phi(z\mid y_k)\)</span>.  For a single sample the Gaussian log-density is</p>
+<div class="arithmatex">\[
+     \log p_\theta(y_k\mid z_k)
+     =-\frac12\sum_{i=1}^n\Bigl[
+       \tfrac{\bigl(y_{k,i}-\mu_{\theta,i}(z_k)\bigr)^2}{\sigma_{\theta,i}(z_k)^2}
+       +\log\bigl(2\pi\,\sigma_{\theta,i}(z_k)^2\bigr)
+     \Bigr].
+\]</div>
+<p>So yes: the decoder takes <span class="arithmatex">\(z_k\)</span> as input, outputs <span class="arithmatex">\(\mu_\theta(z_k)\)</span> and <span class="arithmatex">\(\sigma_\theta(z_k)\)</span>, and then the reconstruction <span class="arithmatex">\(\tilde y_k\)</span> is sampled from that Gaussian.</p>
+<h2 id="training">Training<a class="headerlink" href="#training" title="Permanent link">&para;</a></h2>
+<p>Now that we have clarified the architecture of the VAE, let’s discuss the details of the training. The observation index <span class="arithmatex">\(k = 1, \cdots, m\)</span>. There are <span class="arithmatex">\(m\)</span> observations. <span class="arithmatex">\(y_k \in \mathbb{R}^n\)</span>.  What is the objective function for training? Clearly there must be a term to minimize the reconstruction error <span class="arithmatex">\((y_k - \tilde{y}_k)\)</span>. The training phase must result in fixing of the parameters <span class="arithmatex">\(\phi\)</span> and <span class="arithmatex">\(\theta\)</span> of the encoder and decoder networks. Explain the details of training.</p>
+<p><strong>Answer</strong></p>
+<p>The training objective of a VAE is to maximize, over your encoder‐parameters <span class="arithmatex">\(\phi\)</span> and decoder‐parameters <span class="arithmatex">\(\theta\)</span>, the (empirical) Evidence Lower BOund (ELBO) on the log‐likelihood of your <span class="arithmatex">\(m\)</span> data points <span class="arithmatex">\(\{y_k\}_{k=1}^m\)</span>.  Equivalently one minimizes the <em>negative</em> ELBO, which decomposes into a reconstruction term plus a regularizing KL term.  Concretely:</p>
+<ol>
+<li>
+<p><strong>Definition of the ELBO for a single datum</strong>
+    For each observation <span class="arithmatex">\(y_k\)</span>, the ELBO is</p>
+<div class="arithmatex">\[
+  \mathcal L(\theta,\phi;\,y_k)
+  \;=\;
+  \underbrace{\mathbb{E}_{z\sim q_\phi(z\mid y_k)}
+       \bigl[\log p_\theta(y_k\mid z)\bigr]}_{\displaystyle\text{(a) reconstruction}} 
+  \;-\;
+  \underbrace{D_{\rm KL}\bigl(q_\phi(z\mid y_k)\,\|\,p(z)\bigr)}_
+    {\displaystyle\text{(b) regularizer}}.
+\]</div>
+<p>Here<br />
+(a) <span class="arithmatex">\(\mathbb{E}_{q_\phi}[\log p_\theta(y_k\mid z)]\)</span> encourages the decoder to place high likelihood on <span class="arithmatex">\(y_k\)</span>,<br />
+(b) <span class="arithmatex">\(D_{\rm KL}(q_\phi(z\mid y_k)\,\|\,p(z))\)</span> pushes the approximate posterior toward the prior <span class="arithmatex">\(p(z)=\mathbb{N}(0,I)\)</span>.</p>
+</li>
+<li>
+<p><strong>Empirical objective over the dataset</strong>
+    Replace the population expectation by the empirical average over <span class="arithmatex">\(k=1,\dots,m\)</span>.  The total ELBO is</p>
+<div class="arithmatex">\[
+  \mathcal L_{\rm total}(\theta,\phi)
+  = \sum_{k=1}^m \mathcal L(\theta,\phi;\,y_k)
+  \;=\;
+  \sum_{k=1}^m
+  \Bigl\{
+  \mathcal{E}_{q_\phi(z\mid y_k)}\bigl[\log p_\theta(y_k\mid z)\bigr]
+  \;-\;
+  D_{\rm KL}\bigl(q_\phi(z\mid y_k)\,\|\,p(z)\bigr)
+  \Bigr\}.
+\]</div>
+<p>In practice we <em>maximize</em> <span class="arithmatex">\(\mathcal L_{\rm total}\)</span>, or equivalently <em>minimize</em> the loss</p>
+<div class="arithmatex">\[
+  \mathcal J(\theta,\phi)
+  = -\,\mathcal L_{\rm total}(\theta,\phi).
+\]</div>
+</li>
+<li>
+<p><strong>Writing out the two terms</strong>
+    3.1 Reconstruction term<br />
+    If you use a Gaussian decoder  </p>
+<div class="arithmatex">\[
+  p_\theta(y\mid z)
+  = \mathbb{N}\!\bigl(y;\,\mu_\theta(z),\,\text{diag}(\sigma_\theta(z)^2)\bigr),
+\]</div>
+<p>then</p>
+<div class="arithmatex">\[
+  \log p_\theta(y_k\mid z)
+  = -\frac12\sum_{i=1}^n
+    \Bigl[\tfrac{(y_{k,i}-\mu_{\theta,i}(z))^2}{\sigma_{\theta,i}(z)^2}
+          +\log\bigl(2\pi\,\sigma_{\theta,i}(z)^2\bigr)
+    \Bigr].
+\]</div>
+<p>In many implementations one further <em>fixes</em> <span class="arithmatex">\(\sigma_{\theta,i}(z)=1\)</span>, so that
+<span class="arithmatex">\(\log p_\theta(y_k\mid z)\propto -\tfrac12\|y_k-\mu_\theta(z)\|^2\)</span>, i.e.\ a mean‐squared error.</p>
+<p>3.2 KL‐divergence term<br />
+Since</p>
+<div class="arithmatex">\[
+  q_\phi(z\mid y_k)
+  = \mathbb{N}\!\bigl(z;\,\mu_\phi(y_k),\,\text{diag}(\sigma_\phi(y_k)^2)\bigr),
+  \quad
+  p(z)=\mathbb{N}(0,I),
+\]</div>
+<p>one has the closed‐form</p>
+<div class="arithmatex">\[
+  D_{\rm KL}\bigl(q_\phi(z\mid y_k)\,\|\,p(z)\bigr)
+  = \frac12\sum_{j=1}^d
+    \bigl[\sigma_{\phi,j}(y_k)^2
+          +\mu_{\phi,j}(y_k)^2
+          -1
+          -\log\sigma_{\phi,j}(y_k)^2
+    \bigr].
+\]</div>
+</li>
+<li>
+<p><strong>Stochastic optimization via mini‐batches</strong>
+    You typically do not compute the full sum over <span class="arithmatex">\(k=1,\dots,m\)</span> at each step.  Instead you sample a mini‐batch <span class="arithmatex">\(\{y_{k_1},\dots,y_{k_B}\}\)</span> of size <span class="arithmatex">\(B\)</span>, and approximate the ELBO by</p>
+<div class="arithmatex">\[
+  \widehat{\mathcal L}_{\rm batch}
+  = \frac1B\sum_{b=1}^B
+  \Bigl\{
+    \log p_\theta\bigl(y_{k_b}\mid z_{k_b}\bigr)
+    \;-\;
+    D_{\rm KL}\bigl(q_\phi(z\mid y_{k_b})\|\;p(z)\bigr)
+  \Bigr\},
+\]</div>
+<p>where each <span class="arithmatex">\(z_{k_b}\)</span> is drawn <em>via</em> the reparameterization</p>
+<div class="arithmatex">\[
+  z_{k_b}   = \mu_\phi\bigl(y_{k_b}\bigr) + \sigma_\phi\bigl(y_{k_b}\bigr)\odot \epsilon,\quad
+  \epsilon\sim\mathbb{N}(0,I_d).
+\]</div>
+<p>You then take one (or several) gradient steps</p>
+<div class="arithmatex">\[
+  \phi\;\leftarrow\;\phi + \alpha\,\nabla_\phi\,\widehat{\mathcal L}_{\rm batch},
+  \qquad
+  \theta\;\leftarrow\;\theta + \alpha\,\nabla_\theta\,\widehat{\mathcal L}_{\rm batch},
+\]</div>
+<p>using, e.g., the Adam optimizer with learning rate <span class="arithmatex">\(\alpha\)</span>.</p>
+</li>
+</ol>
+<p>5   <strong>Summary of the training loop</strong></p>
+<p>For <span class="arithmatex">\(t=1,\dots,T\)</span> (number of gradient steps):</p>
+<p>a) Sample a mini‐batch <span class="arithmatex">\(\{y_{k_b}\}_{b=1}^B\)</span>.<br />
+ b) For each <span class="arithmatex">\(y_{k_b}\)</span> compute <span class="arithmatex">\(\mu_\phi(y_{k_b})\)</span>, <span class="arithmatex">\(\sigma_\phi(y_{k_b})\)</span>.<br />
+ c) Sample <span class="arithmatex">\(\epsilon_b\sim\mathbb{N}(0,I_d)\)</span>, set  </p>
+<div class="arithmatex">\[
+            z_{k_b}=\mu_\phi(y_{k_b})+\sigma_\phi(y_{k_b}) \odot\epsilon_b.
+\]</div>
+<p>d) Decode: compute <span class="arithmatex">\(\mu_\theta(z_{k_b})\)</span>, <span class="arithmatex">\(\sigma_\theta(z_{k_b})\)</span> and then<br />
+<span class="arithmatex">\(\log p_\theta(y_{k_b}\mid z_{k_b})\)</span>.<br />
+ e) Compute the batch ELBO <span class="arithmatex">\(\widehat{\mathcal L}_{\rm batch}\)</span> and its gradients w.r.t.\ <span class="arithmatex">\(\phi,\theta\)</span>.<br />
+ f) Update <span class="arithmatex">\(\phi,\theta\)</span> by a gradient‐based optimizer.</p>
+<p>After convergence, you have fixed the encoder parameters <span class="arithmatex">\(\phi\)</span> and decoder parameters <span class="arithmatex">\(\theta\)</span>.  At test time you can (i) encode any new <span class="arithmatex">\(y\)</span> to <span class="arithmatex">\(q_\phi(z\mid y)\)</span>, (ii) sample <span class="arithmatex">\(z\sim p(z)\)</span> and decode to generate new data via <span class="arithmatex">\(p_\theta(y\mid z)\)</span>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "toc.integrate", "navigation.top", "content.code.copy", "content.code.annotate", "palette.toggle"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+      
+        <script src="../javascripts/eruda_init.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
