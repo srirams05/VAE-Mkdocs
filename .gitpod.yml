@@ -5,7 +5,7 @@ tasks:
   - name: Install Dependencies & Start MkDocs
     init: | # Runs only once when the workspace is first created or after a rebuild
       echo "Installing MkDocs and Material theme..."
-      pip install mkdocs mkdocs-material pymdown-extensions
+      pip install -r requirements.txt
       echo "Dependencies installed."
       # Optional: Create a basic MkDocs project if it doesn't exist
       # This helps if you're starting from a completely empty repo
