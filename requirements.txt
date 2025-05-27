@@ -1,0 +1,10 @@
+# Core MkDocs dependencies
+mkdocs==1.6.1
+mkdocs-material==9.6.14
+pymdown-extensions==10.15
+
+# These are included automatically as dependencies of the above packages
+# but explicitly listing them ensures version consistency
+markdown>=3.4.0
+pygments>=2.16.0
+pyyaml>=6.0
