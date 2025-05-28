@@ -22,7 +22,7 @@
     
     
       
-        <title>Chapter 1: VAE Basics - VAE Notes</title>
+        <title>VAE Basics - VAE Notes</title>
       
     
     
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Chapter 1: VAE Basics
+              VAE Basics
             
           </span>
         </div>
@@ -236,7 +236,7 @@
   
     
   
-  Chapter 1: VAE Basics
+  VAE Basics
 
       </a>
     </li>
@@ -255,7 +255,7 @@
   
     
   
-  Chapter 2: Transformer VAE
+  Transformer VAE
 
       </a>
     </li>
@@ -356,7 +356,7 @@
   
   
   <span class="md-ellipsis">
-    Chapter 1: VAE Basics
+    VAE Basics
     
   </span>
   
@@ -369,7 +369,7 @@
   
   
   <span class="md-ellipsis">
-    Chapter 1: VAE Basics
+    VAE Basics
     
   </span>
   
@@ -470,6 +470,51 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#regularization-term-in-elbo" class="md-nav__link">
+    <span class="md-ellipsis">
+      Regularization term in ELBO
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inference-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      Inference pass
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#joint-distribution-of-y" class="md-nav__link">
+    <span class="md-ellipsis">
+      Joint Distribution of \(y\)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#elbo-derived" class="md-nav__link">
+    <span class="md-ellipsis">
+      ELBO derived
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measurements-y_k-are-iid" class="md-nav__link">
+    <span class="md-ellipsis">
+      Measurements \(y_k\) are i.i.d
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -490,7 +535,7 @@
   
   
   <span class="md-ellipsis">
-    Chapter 2: Transformer VAE
+    Transformer VAE
     
   </span>
   
@@ -519,7 +564,7 @@
   
 
 
-  <h1>Chapter 1: VAE Basics</h1>
+  <h1>VAE Basics</h1>
 
 <h2 id="vae-architecture-1">VAE Architecture 1<a class="headerlink" href="#vae-architecture-1" title="Permanent link">&para;</a></h2>
 <p>Let <span class="arithmatex">\(y_k\)</span> be measurements of a data generating process. I would like to use the Variational Autoencoder method of statistical inference, to learn about the data generating process. Describe the details of the VAE to accomplish this.</p>
@@ -1004,6 +1049,270 @@ t=1,\dots,T
   - For Gaussian <span class="arithmatex">\(p_\theta\)</span>, <span class="arithmatex">\(\log p_\theta(y_k\mid z)\)</span> is (negative) MSE plus a constant.<br />
   - Taking <span class="arithmatex">\(\mathbb{E}_{q_\phi(z\mid y_k)}\)</span> yields an average reconstruction error weighted by how likely each <span class="arithmatex">\(z\)</span> is under the encoder.<br />
   - Maximizing this term in the ELBO drives <span class="arithmatex">\(\mu_\theta(z)\)</span> to match <span class="arithmatex">\(y_k\)</span>, exactly implementing the intuitive “reconstruction error” objective.</p>
+<h2 id="regularization-term-in-elbo">Regularization term in ELBO<a class="headerlink" href="#regularization-term-in-elbo" title="Permanent link">&para;</a></h2>
+<p>Explain the intuition behind the regularization term in ELBO.</p>
+<p><strong>Answer</strong></p>
+<p>The ELBO for one data point <span class="arithmatex">\(y_k\)</span> can be written as  </p>
+<div class="arithmatex">\[
+\mathcal{L}(\theta,\phi; y_k)
+=
+\underbrace{\mathbb{E}_{q_\phi(z\mid y_k)}\bigl[\log p_\theta(y_k\mid z)\bigr]}_{\displaystyle\text{(reconstruction)}} 
+\;-\;
+\underbrace{D_{\mathrm{KL}}\bigl(q_\phi(z\mid y_k)\,\big\|\,p(z)\bigr)}_{\displaystyle\text{(regularizer)}}.
+\]</div>
+<p>You already saw that the first term rewards accurate reconstructions.  We now build intuition for the second term  </p>
+<div class="arithmatex">\[
+D_{\mathrm{KL}}\bigl(q_\phi(z\mid y_k)\,\big\|\,p(z)\bigr)
+=\int q_\phi(z\mid y_k)\,\log\frac{q_\phi(z\mid y_k)}{p(z)}\,dz.
+\]</div>
+<ol>
+<li>
+<p>Preventing “over‐powerful” encodings<br />
+   If we only maximized reconstruction, the encoder could drive <span class="arithmatex">\(q_\phi(z\mid y_k)\)</span> to a Dirac delta at some <span class="arithmatex">\(z\)</span> that decodes perfectly to <span class="arithmatex">\(y_k\)</span>.  That would give zero reconstruction error but completely “overfit” each <span class="arithmatex">\(y_k\)</span> (and destroy any ability to sample new <span class="arithmatex">\(z\sim p(z)\)</span>).  The KL term penalizes deviation of <span class="arithmatex">\(q_\phi\)</span> from the prior <span class="arithmatex">\(p(z)\)</span>, blocking this collapse.</p>
+</li>
+<li>
+<p>Encouraging a “smooth,” compressive code<br />
+   The KL measures how many “nats” (or bits) of information the approximate posterior carries beyond the prior.<br />
+     • If <span class="arithmatex">\(q_\phi(z\mid y_k)\approx p(z)\)</span>, then <span class="arithmatex">\(D_{\mathrm{KL}}\approx0\)</span>: the code for <span class="arithmatex">\(y_k\)</span> is very compact (almost no information over the prior).<br />
+     • If <span class="arithmatex">\(q_\phi(z\mid y_k)\)</span> sharpens far away from <span class="arithmatex">\(p(z)\)</span>, the KL grows, penalizing your objective.<br />
+   Thus you trade off fidelity (reconstruction) versus compression (staying close to <span class="arithmatex">\(p(z)\)</span>).</p>
+</li>
+<li>
+<p>Making generation from <span class="arithmatex">\(p(z)\)</span> meaningful<br />
+   After training, you want to sample <span class="arithmatex">\(z\sim p(z)\)</span> and decode via <span class="arithmatex">\(p_\theta(y\mid z)\)</span>.  If during training the posterior encodings <span class="arithmatex">\(q_\phi(z\mid y)\)</span> wandered far from <span class="arithmatex">\(p(z)\)</span>, then samples from <span class="arithmatex">\(p(z)\)</span> would lie in regions the decoder never saw—leading to garbage outputs.  The KL term aligns the bulk of <span class="arithmatex">\(q_\phi(z\mid y)\)</span> with <span class="arithmatex">\(p(z)\)</span>, so that “random” <span class="arithmatex">\(z\sim p(z)\)</span> produce sensible <span class="arithmatex">\(y\)</span>.</p>
+</li>
+<li>
+<p>Interpreting as a regularizer<br />
+   In machine‐learning terms, <span class="arithmatex">\(D_{\mathrm{KL}}(q\|p)\)</span> is a complexity penalty on the encoder.  If you view <span class="arithmatex">\(q_\phi(z\mid y_k)\)</span> as a variational approximation with free parameters <span class="arithmatex">\(\phi\)</span>, the KL term is the analog of an <span class="arithmatex">\(\ell_2\)</span>-penalty on those parameters—inhibiting them from drifting arbitrarily far from a reference distribution <span class="arithmatex">\(p(z)\)</span>.</p>
+</li>
+<li>
+<p>Rate–Distortion perspective<br />
+   The VAE objective exactly mirrors the classical <em>rate–distortion</em> trade‐off:<br />
+     – Distortion <span class="arithmatex">\(\equiv\)</span> expected reconstruction loss <span class="arithmatex">\(\mathbb{E}[-\log p_\theta(y\mid z)]\)</span>.<br />
+     – Rate <span class="arithmatex">\(\equiv\)</span> KL divergence <span class="arithmatex">\(D_{\mathrm{KL}}(q_\phi(z\mid y)\|p(z))\)</span>.<br />
+   By tuning this trade‐off, you decide how much information about <span class="arithmatex">\(y\)</span> the latent code <span class="arithmatex">\(z\)</span> is allowed to carry.</p>
+</li>
+</ol>
+<p>In practice, you cannot drive the KL term to zero without wrecking reconstruction, nor can you drive it to huge values without overfitting.  The optimum balances the two, yielding latent representations that are both informative about each <span class="arithmatex">\(y_k\)</span> and yet remain well‐aligned with the prior <span class="arithmatex">\(p(z)\)</span>.</p>
+<h2 id="inference-pass">Inference pass<a class="headerlink" href="#inference-pass" title="Permanent link">&para;</a></h2>
+<p>I will come back to the intuition for the KL term. During the inference forward pass phase, how does the VAE work? Certainly, new observations <span class="arithmatex">\(y\)</span> are the input. Then what?</p>
+<p><strong>Answer</strong></p>
+<p>At inference time (i.e. after you have finished training and fixed <span class="arithmatex">\(\phi,\theta\)</span>), the VAE acts as a fast “encoder→latent→optional decoder” pipeline.  Concretely, given a new observation <span class="arithmatex">\(y\in\Bbb R^n\)</span>:</p>
+<p>1 <strong>Encode <span class="arithmatex">\(y\)</span> to an approximate posterior</strong></p>
+<p>You pass <span class="arithmatex">\(y\)</span> through the encoder network and compute  </p>
+<div class="arithmatex">\[
+     (\mu,\sigma)
+     \;=\;
+     \bigl(\mu_{\phi}(y),\,\sigma_{\phi}(y)\bigr),
+     \quad
+     q_{\phi}(z\mid y)
+     =\mathcal{N}\!\bigl(z;\,\mu,\;\mathrm{diag}(\sigma^2)\bigr).
+\]</div>
+<p>2 <strong>Obtain a latent code <span class="arithmatex">\(z\)</span>, You have two main choices:</strong></p>
+<p>(a) <strong>Deterministic embedding</strong>: use the posterior mean  </p>
+<div class="arithmatex">\[
+         z = \mu_{\phi}(y).
+\]</div>
+<p>This gives a single “best‐guess” embedding of <span class="arithmatex">\(y\)</span>.<br />
+(b) <strong>Stochastic sample</strong>: draw  </p>
+<div class="arithmatex">\[
+         z = \mu_{\phi}(y)\;+\;\sigma_{\phi}(y)\odot\epsilon,
+         \quad
+         \epsilon\sim\mathcal{N}(0,I_d).
+\]</div>
+<p>This reflects the encoder’s uncertainty in the latent representation.</p>
+<p>3 <strong>(Optional) Reconstruct <span class="arithmatex">\(y\)</span></strong>
+   If you wish to see how well the model “reconstructs” <span class="arithmatex">\(y\)</span>, you pass <span class="arithmatex">\(z\)</span> through the decoder network:  </p>
+<div class="arithmatex">\[
+     (\tilde\mu,\tilde\sigma)
+     = \bigl(\mu_{\theta}(z),\,\sigma_{\theta}(z)\bigr),
+     \quad
+     p_{\theta}(y\mid z)
+     =\mathcal{N}(y;\,\tilde\mu,\text{diag}(\tilde\sigma^2)).
+\]</div>
+<p>Again you may either take <span class="arithmatex">\(\tilde y = \tilde\mu\)</span> as the point reconstruction, or sample<br />
+<span class="arithmatex">\(\tilde y \sim \mathcal{N}(\tilde\mu,\text{diag}(\tilde\sigma^2))\)</span>.</p>
+<p>4 <strong>Use of the latent code</strong>
+   Once you have <span class="arithmatex">\(z\)</span>, you can<br />
+   • Feed it into downstream tasks (classification, clustering, regression),<br />
+   • Interpolate in latent space between different <span class="arithmatex">\(z\)</span>s and decode back to data‐space,<br />
+   • Visualize or otherwise analyze the low‐dimensional manifold captured by the encoder.</p>
+<p>Because the encoder and decoder are just feed‐forward neural networks at this point, each new <span class="arithmatex">\(y\)</span> is processed in a single forward pass through the encoder (and optionally through the decoder), with no further gradient updates.</p>
+<h2 id="joint-distribution-of-y">Joint Distribution of <span class="arithmatex">\(y\)</span><a class="headerlink" href="#joint-distribution-of-y" title="Permanent link">&para;</a></h2>
+<p>Since <span class="arithmatex">\(y \in \mathbb{R}^n\)</span> represents a realization of the data generating process, each entry of <span class="arithmatex">\(y\)</span>, that is, <span class="arithmatex">\(y^{(i)}, i = 1, \cdots, n\)</span> can be viewed as a random variable. After the VAE has been trained, it can be used to model the joint distribution of the <span class="arithmatex">\(y^{(i)}\)</span>. Is this correct?</p>
+<p><strong>Answer</strong></p>
+<p>Yes — once the VAE is trained, you have in hand a full probabilistic model of the random vector </p>
+<div class="arithmatex">\[
+Y=(Y^{(1)},\dots,Y^{(n)})\in\mathbb{R}^n
+\]</div>
+<p>via the decoder <span class="arithmatex">\(p_\theta(y\mid z)\)</span> together with the prior <span class="arithmatex">\(p(z)\)</span>.  Concretely you define the model’s <em>marginal</em> (joint) density on <span class="arithmatex">\(Y\)</span> by  </p>
+<div class="arithmatex">\[
+p_\theta(y)
+=\int p(z)\,p_\theta(y\mid z)\,\mathrm{d}z
+\;=\;
+\int \mathcal N\bigl(z;0,I_d\bigr)\,
+       \mathcal N\bigl(y;\mu_\theta(z),\text{diag}(\sigma_\theta(z)^2)\bigr)
+       \,\mathrm{d}z.
+\]</div>
+<p>This <span class="arithmatex">\(p_\theta(y)\)</span> is your learned approximation to the true data‐generating joint density of <span class="arithmatex">\(\{Y^{(i)}\}_{i=1}^n\)</span>.  </p>
+<p>1  <strong>Conditional independence structure</strong>
+  Note that in the Gaussian‐decoder VAE we assume<br />
+  $$
+      p_\theta(y\mid z)
+      =\prod_{i=1}^n
+        \mathcal N\bigl(y^{(i)};\,\mu_{\theta,i}(z),\,\sigma_{\theta,i}(z)^2\bigr).
+  $$<br />
+  Hence the coordinates <span class="arithmatex">\(Y^{(1)},\dots,Y^{(n)}\)</span> are <em>conditionally</em> independent given <span class="arithmatex">\(Z\)</span>, but they are <em>marginally</em> dependent because they all couple through the latent <span class="arithmatex">\(Z\)</span>.</p>
+<p>2  <strong>Sampling from the joint</strong>
+  To generate a joint sample <span class="arithmatex">\(\tilde y\sim p_\theta(y)\)</span>:<br />
+    a) draw <span class="arithmatex">\(z\sim p(z)=\mathcal N(0,I_d)\)</span>,<br />
+    b) draw <span class="arithmatex">\(\tilde y\sim p_\theta(y\mid z)\)</span>.<br />
+  You thus obtain one sample of the full vector <span class="arithmatex">\((\tilde y^{(1)},\dots,\tilde y^{(n)})\)</span>.</p>
+<p>3  <strong>Density evaluation</strong>
+  Although the integral<br />
+<span class="arithmatex">\(\;p_\theta(y)=\int p(z)\,p_\theta(y\mid z)\,dz\)</span><br />
+  is not available in closed form, you can <em>approximate</em> it (for instance via importance sampling or other Monte Carlo methods) if you need to evaluate the joint density of a given <span class="arithmatex">\(y\)</span>.</p>
+<p>4  <strong>Approximation caveats</strong>
+  – The true data‐generating joint density <span class="arithmatex">\(p_{\rm data}(y)\)</span> may lie <em>outside</em> your model family <span class="arithmatex">\(\{p_\theta\}\)</span>.  Thus <span class="arithmatex">\(p_\theta(y)\)</span> is in general only an <em>approximation</em>, the quality of which depends on network capacity and optimization.<br />
+  – Because we optimized an ELBO (a lower bound on <span class="arithmatex">\(\log p_\theta(y)\)</span>), the learned <span class="arithmatex">\(\theta\)</span> maximizes that bound, not the exact likelihood.  Still, in practice this often gives a very good fit to the joint.</p>
+<p>In summary, after training your VAE defines a generative model </p>
+<div class="arithmatex">\[
+Y\;\sim\;p_\theta(y)
+\;=\;
+\int p(z)\,p_\theta(y\mid z)\,dz,
+\]</div>
+<p>which <em>is</em> a model of the joint distribution of the entries <span class="arithmatex">\(Y^{(1)},\dots,Y^{(n)}\)</span>.</p>
+<h2 id="elbo-derived">ELBO derived<a class="headerlink" href="#elbo-derived" title="Permanent link">&para;</a></h2>
+<p>You have provided the intuition for ELBO. Now provide a formal derivation of ELBO.</p>
+<p><strong>Answer</strong></p>
+<p>Below is the standard “variational” derivation of the ELBO (Evidence Lower BOund) for a single datum <span class="arithmatex">\(y\)</span>.  All steps use only basic properties of logarithms, expectations, and Jensen’s inequality.</p>
+<p>1  The marginal log‐likelihood<br />
+We wish to evaluate (or maximize) the log‐evidence  </p>
+<div class="arithmatex">\[
+\log p_{\theta}(y)
+=\log\!\int p_{\theta}(y,z)\,dz
+=\log\!\int p_{\theta}(y\mid z)\,p(z)\,dz.
+\]</div>
+<p>2  Introducing a variational distribution<br />
+Fix an arbitrary distribution <span class="arithmatex">\(q_{\phi}(z\mid y)\)</span> that has the same support as <span class="arithmatex">\(p(z\mid y)\)</span>.  Since <span class="arithmatex">\(\int q_{\phi}(z\mid y)\,dz=1\)</span>, we may write</p>
+<div class="arithmatex">\[
+\log p_{\theta}(y)
+=\log\!\int q_{\phi}(z\mid y)\,\frac{p_{\theta}(y,z)}{q_{\phi}(z\mid y)}\,dz
+=\log\mathbb{E}_{z\sim q_{\phi}(\cdot\mid y)}
+\biggl[\frac{p_{\theta}(y,z)}{q_{\phi}(z\mid y)}\biggr].
+\]</div>
+<p>3  Applying Jensen’s inequality<br />
+Since <span class="arithmatex">\(\log\)</span> is concave,  </p>
+<div class="arithmatex">\[
+\log\mathbb{E}_{q}\bigl[X\bigr]
+\;\ge\;
+\mathbb{E}_{q}\bigl[\log X\bigr].
+\]</div>
+<p>Setting <span class="arithmatex">\(X = p_{\theta}(y,z)/q_{\phi}(z\mid y)\)</span> gives the ELBO lower bound:</p>
+<div class="arithmatex">\[
+\log p_{\theta}(y)
+\;\ge\;
+\mathbb{E}_{z\sim q_{\phi}(z\mid y)}\!
+\Bigl[\log p_{\theta}(y,z)\;-\;\log q_{\phi}(z\mid y)\Bigr]
+\;=\;
+\mathcal{L}(\theta,\phi;y).
+\]</div>
+<p>4  Decomposing <span class="arithmatex">\(\mathcal{L}\)</span><br />
+Write</p>
+<div class="arithmatex">\[
+\mathcal{L}(\theta,\phi;y)
+=\mathbb{E}_{q_{\phi}(z\mid y)}\bigl[\log p_{\theta}(y,z)\bigr]
+\;-\;\mathbb{E}_{q_{\phi}(z\mid y)}\bigl[\log q_{\phi}(z\mid y)\bigr].
+\]</div>
+<p>Since <span class="arithmatex">\(\log p_{\theta}(y,z)=\log p_{\theta}(y\mid z)+\log p(z)\)</span>, we get</p>
+<div class="arithmatex">\[
+\mathcal{L}(\theta,\phi;y)
+=\underbrace{\mathbb{E}_{q_{\phi}(z\mid y)}\bigl[\log p_{\theta}(y\mid z)\bigr]}_{\text{(A) reconstruction}}
+\;+\;
+\underbrace{\mathbb{E}_{q_{\phi}(z\mid y)}\bigl[\log p(z)\bigr]
+-\mathbb{E}_{q_{\phi}(z\mid y)}\bigl[\log q_{\phi}(z\mid y)\bigr]}_{\text{(B) regularizer}}.
+\]</div>
+<p>But note that</p>
+<div class="arithmatex">\[
+\mathbb{E}_{q}\bigl[\log p(z)\bigr]
+-\mathbb{E}_{q}\bigl[\log q(z)\bigr]
+=-\,D_{\mathrm{KL}}\bigl(q_{\phi}(z\mid y)\,\big\|\,p(z)\bigr).
+\]</div>
+<p>Thus the usual form</p>
+<div class="arithmatex">\[
+\boxed{
+\mathcal{L}(\theta,\phi;y)
+=
+\mathbb{E}_{z\sim q_{\phi}(z\mid y)}\bigl[\log p_{\theta}(y\mid z)\bigr]
+\;-\;
+D_{\mathrm{KL}}\!\bigl(q_{\phi}(z\mid y)\,\big\|\,p(z)\bigr)
+}\,.
+\]</div>
+<p>5  Exact decomposition with the true posterior<br />
+One can also write exactly (no Jensen)</p>
+<div class="arithmatex">\[
+\log p_{\theta}(y)
+=\mathcal{L}(\theta,\phi;y)
+\;+\;
+D_{\mathrm{KL}}\bigl(q_{\phi}(z\mid y)\,\big\|\,p_{\theta}(z\mid y)\bigr),
+\]</div>
+<p>which shows <span class="arithmatex">\(\mathcal{L}\)</span> is a lower bound since <span class="arithmatex">\(D_{\rm KL}\ge0\)</span>.</p>
+<p>6  Extension to a dataset<br />
+Given observations <span class="arithmatex">\(\{y_k\}_{k=1}^m\)</span>, assume they are i.i.d. under <span class="arithmatex">\(p_{\theta}\)</span>.  The total ELBO is</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\mathrm{total}}(\theta,\phi)
+=\sum_{k=1}^m
+\mathcal{L}(\theta,\phi;y_k)
+=\sum_{k=1}^m
+\Bigl\{
+\mathbb{E}_{q_{\phi}(z\mid y_k)}[\log p_{\theta}(y_k\mid z)]
+\;-\;
+D_{\mathrm{KL}}(q_{\phi}(z\mid y_k)\,\|\,p(z))
+\Bigr\}.
+\]</div>
+<p>We then maximize <span class="arithmatex">\(\mathcal{L}_{\mathrm{total}}\)</span> (or equivalently minimize its negative) w.r.t.\ <span class="arithmatex">\(\theta,\phi\)</span>.</p>
+<p>This completes the formal derivation of the ELBO.</p>
+<h2 id="measurements-y_k-are-iid">Measurements <span class="arithmatex">\(y_k\)</span> are i.i.d<a class="headerlink" href="#measurements-y_k-are-iid" title="Permanent link">&para;</a></h2>
+<p>The VAE theory just discussed implicitly assumes that the observations are drawn i.i.d from the data generating process. Is this correct?</p>
+<p><strong>Answer</strong></p>
+<p>Yes.  In the derivation and training objective we in fact assume that the dataset </p>
+<div class="arithmatex">\[
+\{y_k\}_{k=1}^m
+\]</div>
+<p>consists of independent, identically distributed draws from the underlying data‐generating law.  Concretely:</p>
+<p>1  Generative model factorization<br />
+  We posit  </p>
+<div class="arithmatex">\[
+      p_{\theta}(y_{1:m},z_{1:m})
+      =\prod_{k=1}^m p(z_k)\,p_{\theta}(y_k\mid z_k),
+\]</div>
+<p>which implies the marginal over the observations factorizes as </p>
+<div class="arithmatex">\[
+      p_{\theta}(y_{1:m})
+      =\prod_{k=1}^m p_{\theta}(y_k).
+\]</div>
+<p>2  Variational posterior factorization<br />
+    We choose an amortized variational family that likewise factorizes:  </p>
+<div class="arithmatex">\[
+      q_{\phi}(z_{1:m}\mid y_{1:m})
+      =\prod_{k=1}^m q_{\phi}(z_k\mid y_k).
+\]</div>
+<p>3  ELBO as a sum of per‐datum terms<br />
+    Because of these factorizations, the total ELBO over the dataset decomposes into a sum of independent terms:  </p>
+<div class="arithmatex">\[
+      \mathcal L_{\rm total}(\theta,\phi)
+      = \sum_{k=1}^m
+        \Bigl\{
+          \mathbb{E}_{q_\phi(z_k\mid y_k)}[\log p_\theta(y_k\mid z_k)]
+          \;-\;
+          D_{\mathrm{KL}}(q_\phi(z_k\mid y_k)\,\|\,p(z_k))
+        \Bigr\}.
+\]</div>
+<p>Implicit in this decomposition is the assumption that each <span class="arithmatex">\(y_k\)</span> is drawn i.i.d.\ from the same marginal <span class="arithmatex">\(p_\theta(y)\)</span>.</p>
+<p>If your data are <em>not</em> i.i.d.\ (for instance time‐series, spatial fields, graphs, etc.), you must replace this vanilla VAE by a model that encodes the dependencies—for example:<br />
+• A sequential or recurrent VAE that conditions <span class="arithmatex">\(p(y_k\mid z_k)\)</span> on past observations <span class="arithmatex">\(y_{&lt;k}\)</span>.<br />
+• A hierarchical or structured VAE that allows correlations among <span class="arithmatex">\(z_k\)</span>.  </p>
+<p>But the standard VAE as derived above <em>does</em> assume i.i.d.\ observations.</p>
 
 
 

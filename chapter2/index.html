@@ -20,7 +20,7 @@
     
     
       
-        <title>Chapter 2: Transformer VAE - VAE Notes</title>
+        <title>Transformer VAE - VAE Notes</title>
       
     
     
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started" class="md-skip">
+        <a href="#timedepth-series" class="md-skip">
           Skip to content
         </a>
       
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Chapter 2: Transformer VAE
+              Transformer VAE
             
           </span>
         </div>
@@ -232,7 +232,7 @@
   
     
   
-  Chapter 1: VAE Basics
+  VAE Basics
 
       </a>
     </li>
@@ -253,7 +253,7 @@
   
     
   
-  Chapter 2: Transformer VAE
+  Transformer VAE
 
       </a>
     </li>
@@ -347,7 +347,7 @@
   
   
   <span class="md-ellipsis">
-    Chapter 1: VAE Basics
+    VAE Basics
     
   </span>
   
@@ -370,20 +370,156 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
-        
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Transformer VAE
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    Chapter 2: Transformer VAE
+    Transformer VAE
     
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#timedepth-series" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time/Depth series
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformer-as-encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transformer as Encoder
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-input-embedding-and-positional-encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      1) Input Embedding and Positional Encoding
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-multihead-attention-and-residual" class="md-nav__link">
+    <span class="md-ellipsis">
+      2) Multi‐Head Attention and Residual
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-feedforward-sublayer" class="md-nav__link">
+    <span class="md-ellipsis">
+      3) Feed‐Forward Sublayer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-stacking-l-layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      4) Stacking L layers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mapping-to-latent-distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      5) Mapping to Latent Distributions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      Summary
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#transformer-encoder-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      Transformer encoder output
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-rest-of-vae-theory-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      The rest of VAE theory holds
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decoder-also-as-a-transformer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Decoder also as a transformer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#differentiability-with-transformers" class="md-nav__link">
+    <span class="md-ellipsis">
+      Differentiability with transformers
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -408,22 +544,394 @@
   
 
 
-<h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
-<p>This chapter covers the basics.</p>
-<h1 id="basic-math-examples">Basic Math Examples<a class="headerlink" href="#basic-math-examples" title="Permanent link">&para;</a></h1>
-<p>Inline math: <span class="arithmatex">\(\alpha^2 + \beta^2 = \gamma^2\)</span> or <span class="arithmatex">\(E=mc^2\)</span>.</p>
-<p>Display math:</p>
+  <h1>Transformer VAE</h1>
+
+<h2 id="timedepth-series">Time/Depth series<a class="headerlink" href="#timedepth-series" title="Permanent link">&para;</a></h2>
+<p>For time series observations, there is a concept called Dynamical VAE (DVAE). This encompasses many variants of VAE structures which allows for the latent variables <span class="arithmatex">\(z_{1:m}\)</span> to be also a “time series”. In essence then, the VAE becomes a sequence to sequence structure. What specific structures are applicable for this use case?</p>
+<p><strong>Answer:</strong></p>
+<p>Below is an overview of popular “Dynamical VAE” (DVAE) variants that treat the latent variables <span class="arithmatex">\(z_{1:m}\)</span> as a (stochastic) time series.  In these models, the VAE is extended to a sequence‐to‐sequence structure with explicit temporal dependencies in the latent space and/or in the decoder.</p>
+<p>1) Markovian or State‐Space DVAE</p>
+<p>• STORN (Bayer &amp; Osendorfer, 2014)<br />
+  - “Stochastic Recurrent Networks.”<br />
+  - Prior over the latent sequence is a Markov chain:  </p>
 <div class="arithmatex">\[
- \int_0^1 x^2 dx = \frac{1}{3}
+      p(z_1)\,\prod_{k=2}^m p_\theta(z_k\mid z_{k-1}),
 \]</div>
-<p>Or using LaTeX delimiters:</p>
+<p>with each <span class="arithmatex">\(y_k\)</span> decoded from its latent <span class="arithmatex">\(z_k\)</span>.<br />
+  - The encoder is typically an RNN that outputs approximate posteriors <span class="arithmatex">\(q_\phi(z_k\mid z_{&lt;k},y_{1:k})\)</span>.  </p>
+<p>• VRNN (Chung et al., 2015)<br />
+  - “A Recurrent Latent Variable Model for Sequential Data.”<br />
+  - Uses RNN hidden states <span class="arithmatex">\(h_k\)</span> to condition both the prior and the approximate posterior of <span class="arithmatex">\(z_k\)</span>.<br />
+  - Factorization:  </p>
 <div class="arithmatex">\[
-\sum_{n=1}^\infty \frac{1}{n^2} = \frac{\pi^2}{6}
+      p_\theta(y_{1:m},z_{1:m})
+      \;=\;\prod_{k=1}^m p_\theta(z_k\mid h_{k-1})\;p_\theta(y_k\mid z_k,h_{k-1}),
 \]</div>
-<p>Testing 1 2 3</p>
-<h1 id="code-snippet">Code Snippet<a class="headerlink" href="#code-snippet" title="Permanent link">&para;</a></h1>
-<p>```python
-print("Hello, World!")</p>
+<p>with transitions in the hidden state <span class="arithmatex">\(h_k\)</span>.  </p>
+<p>• SRNN (Fraccaro et al., 2016)<br />
+  - “Sequential Neural Models with Stochastic Layers.”<br />
+  - Also called the SSM-VAE (stochastic state‐space model).<br />
+  - Explicit separation of deterministic RNN hidden state <span class="arithmatex">\(h_k\)</span> and stochastic latents <span class="arithmatex">\(z_k\)</span>.<br />
+  - The decoder is factorized as <span class="arithmatex">\(y_k\sim p_\theta(y_k\mid z_k,h_{k-1})\)</span>.  </p>
+<p>In each of these, the latent dynamics <span class="arithmatex">\(z_1,z_2,\dots\)</span> form a Markov chain or partially observed Markov process, giving a sequence‐to‐sequence structure that captures temporal correlations.</p>
+<p>2) Non-Markov Latents with Attention or Convolution</p>
+<p>• Convolutional Temporal VAE<br />
+  - Instead of an RNN, you can use 1D causal (or non‐causal) convolutions in the encoder and decoder to process sequences.<br />
+  - Latent variables may still be factorized as <span class="arithmatex">\(q_\phi(z_{1:m}\mid y_{1:m})=\prod_k q_\phi(z_k\mid y_{1:m})\)</span>, but each <span class="arithmatex">\(z_k\)</span> is extracted by a local receptive field in time.  </p>
+<p>• Transformer‐based DVAE<br />
+  - Replace RNNs by self‐attention (e.g., a Transformer) in both the prior/posterior networks.<br />
+  - This can capture long‐range dependencies in the latent sequence without an explicit Markov assumption.  </p>
+<p>3) Continuous‐time DVAE</p>
+<p>• Latent ODE (Rubanova et al., 2019)<br />
+  - Models latents as solutions to an ODE, so the latent trajectory <span class="arithmatex">\(z(t)\)</span> evolves continuously in time.<br />
+  - The VAE structure is maintained by having <span class="arithmatex">\(z(t)\)</span> feed into a decoder that generates observations at discrete or irregular time points.<br />
+  - Inference is done by “encoding” the observed data into initial conditions of the ODE with a recognition network.  </p>
+<p>• ODE2VAE (Yıldız et al., 2019)<br />
+  - Combines an ODE model for a global latent trajectory with an additional recognition model for short‐term dynamics.  </p>
+<p>These approaches are particularly useful when your measurements <span class="arithmatex">\(y\)</span> come in at irregular time intervals, or you want a physically motivated continuous‐time latent space.</p>
+<p>4) GP‐VAE and Other Gaussian‐Process Latent Structures</p>
+<p>• GP-VAE (Casale et al., 2018)<br />
+  - Constrains <span class="arithmatex">\(\{z_k\}\)</span> to come from a Gaussian Process prior so that  </p>
+<div class="arithmatex">\[
+      p(z_{1:m})
+      = \mathcal N(0,\,K)
+\]</div>
+<p>for some temporal kernel <span class="arithmatex">\(K_{t_i,t_j}\)</span>.<br />
+  - Then each <span class="arithmatex">\(y_k\)</span> is decoded independently given <span class="arithmatex">\(z_k\)</span>.<br />
+  - Posterior inference is done with structured variational approximations.  </p>
+<p>Such GP-based DVAEs capture smooth or band‐limited time correlations in the latent space.</p>
+<p>5) Hierarchical / Multi‐Scale DVAE</p>
+<p>• SHVRNN, HDVAE, etc.<br />
+  - Introduce multiple latent layers or multi‐scale structure, e.g. a “global” latent that evolves slowly and local latents that capture finer time‐scale detail.<br />
+  - Typically combine RNNs at each layer to handle separate timescales.  </p>
+<p>Implementation and ELBO</p>
+<p>Regardless of the chosen structure, training always proceeds by maximizing (a variant of) the sequential ELBO:</p>
+<div class="arithmatex">\[
+\mathcal{L}_{\mathrm{seq}}(\theta,\phi)
+=\sum_{k=1}^m \mathbb{E}_{q_\phi(z_{k}\mid z_{&lt;k},\,y_{1:m})}
+  \Bigl[\log p_\theta(y_k\mid z_{\le k})
+  \Bigr]
+\;-\;
+\sum_{k=1}^m
+  D_{\mathrm{KL}}\bigl(q_\phi(z_k\mid z_{&lt;k},\,y_{1:m})
+    \,\|\,p_\theta(z_k\mid z_{&lt;k})\bigr),
+\]</div>
+<p>plus any additional terms for hierarchical or continuous‐time structure.<br />
+The difference is in how you factorize:
+• the prior <span class="arithmatex">\(p_\theta(z_{1:m})\)</span>,<br />
+• the approximate posterior <span class="arithmatex">\(q_\phi(z_{1:m}\mid y_{1:m})\)</span>.  </p>
+<p>Summary</p>
+<p>To handle time series in a VAE:</p>
+<ol>
+<li>
+<p>Markov / RNN-based DVAE (STORN, VRNN, SRNN)<br />
+   – Latent dynamics modeled by a hidden‐state transition.<br />
+   – Encoder uses an RNN (or LSTM/GRU).</p>
+</li>
+<li>
+<p>Attention or Convolution-based DVAE<br />
+   – A non‐Markov approach capturing long‐range or local correlations with self‐attention or causal convolutions.</p>
+</li>
+<li>
+<p>Continuous-time DVAE (Latent ODE, ODE2VAE)<br />
+   – Latent trajectory follows an ODE; observations at irregular intervals.</p>
+</li>
+<li>
+<p>Gaussian-Process or MRF Prior<br />
+   – Enforce smooth or band‐limited latent sequences via a GP kernel or pairwise Markov Random Field.</p>
+</li>
+<li>
+<p>Hierarchical / Multi‐scale DVAE<br />
+   – Latents at multiple time scales, e.g. a “global” slow latent plus local fast latents.</p>
+</li>
+</ol>
+<p>All of these are “Dynamical VAEs,” tailored to time‐series data by modeling the latent variables as a correlated or smoothly evolving sequence, rather than the default i.i.d. prior.</p>
+<h2 id="transformer-as-encoder">Transformer as Encoder<a class="headerlink" href="#transformer-as-encoder" title="Permanent link">&para;</a></h2>
+<p>I want to use a transformer structure in encoder to model local and non-local correlations among the data <span class="arithmatex">\(y_{1:m}\)</span>. Recall that <span class="arithmatex">\(y_k \in \mathbb{R}^n\)</span>. The sequence length <span class="arithmatex">\(m\)</span> is considered fixed.</p>
+<p>Let <span class="arithmatex">\(l = 1, \cdots, L\)</span> represent the layer index of a transformer block. Let the transformer block be modeled as a sequence to sequence map:</p>
+<div class="arithmatex">\[
+X_{l+1} = X_l + \text{MHAttention}(X_l)
+\]</div>
+<p>Where <span class="arithmatex">\(\text{MHAttention}(\cdot)\)</span> is a multi head attention block which operates on the sequence <span class="arithmatex">\(X\)</span>.</p>
+<p>How should such a multi head attention block be introduced in the encoder?</p>
+<p><strong>Answer:</strong></p>
+<p>Below is a step‐by‐step outline of how to introduce a multi‐head attention (MHA) block into your VAE encoder, focusing on the sequence of inputs <span class="arithmatex">\(y_{1:m}\)</span> of length <span class="arithmatex">\(m\)</span> (each <span class="arithmatex">\(y_k \in \mathbb{R}^n\)</span>).<br />
+We describe the typical Transformer encoder pipeline, which incorporates both MHA and a feed‐forward sublayer (often called a “Transformer block”).</p>
+<hr />
+<h2 id="1-input-embedding-and-positional-encoding">1) Input Embedding and Positional Encoding<a class="headerlink" href="#1-input-embedding-and-positional-encoding" title="Permanent link">&para;</a></h2>
+<p>1a) Embed each observation.<br />
+Since each <span class="arithmatex">\(y_k\in\mathbb{R}^n\)</span> is a vector (or could be an <span class="arithmatex">\(n\)</span>-dimensional array), you first map it into a <span class="arithmatex">\(d_{\mathrm{model}}\)</span>-dimensional “token”:</p>
+<div class="arithmatex">\[
+X^{(0)}_k
+\;=\;
+W_{\mathrm{emb}}\,y_k \;\in\;\mathbb{R}^{d_{\mathrm{model}}}\quad
+\text{for }k=1,\dots,m.
+\]</div>
+<p>Stack these along the sequence dimension, forming 
+<span class="arithmatex">\(\;X^{(0)}\in \mathbb{R}^{m\times d_{\mathrm{model}}}\)</span>.</p>
+<p>1b) Positional encoding.<br />
+Self‐attention is permutation-invariant unless you add position information.<br />
+A standard approach is to add a learnable or fixed positional embedding <span class="arithmatex">\(P\in\mathbb{R}^{m\times d_{\mathrm{model}}}\)</span> to each token:</p>
+<div class="arithmatex">\[
+X^{(0)} \;=\; [X^{(0)}_1; \dots; X^{(0)}_m]
+\;\mapsto\;
+X^{(0)} + P
+\;\in\;\mathbb{R}^{m\times d_{\mathrm{model}}}.
+\]</div>
+<p>(You may store each row of <span class="arithmatex">\(P\)</span> as <span class="arithmatex">\(P_k\)</span>, the encoding for position <span class="arithmatex">\(k\)</span>.)</p>
+<hr />
+<h2 id="2-multihead-attention-and-residual">2) Multi‐Head Attention and Residual<a class="headerlink" href="#2-multihead-attention-and-residual" title="Permanent link">&para;</a></h2>
+<p>Let <span class="arithmatex">\(X_l\)</span> be the sequence of hidden states at layer <span class="arithmatex">\(l\)</span>.<br />
+A single multi‐head attention block (ignoring feed‐forward for the moment) maps</p>
+<div class="arithmatex">\[
+X_{l}
+\;\mapsto\;
+X_{l} 
+\;+\;
+\mathrm{MHAttention}(X_{l}).
+\]</div>
+<p>Below is how you compute <span class="arithmatex">\(\mathrm{MHAttention}(X_l)\)</span>:</p>
+<p>2a) Compute Queries, Keys, Values.<br />
+For each head <span class="arithmatex">\(h=1,\dots,H\)</span>, define three linear maps:</p>
+<div class="arithmatex">\[
+W^Q_h,\;W^K_h,\;W^V_h 
+\;\in\;\mathbb{R}^{\,d_{\mathrm{model}}\times d_{k}}.
+\]</div>
+<p>We form:</p>
+<div class="arithmatex">\[
+Q_h = X_l\,W^Q_h,\quad
+K_h = X_l\,W^K_h,\quad
+V_h = X_l\,W^V_h.
+\]</div>
+<p>Here <span class="arithmatex">\(Q_h,K_h,V_h \in \mathbb{R}^{m\times d_k}\)</span>.<br />
+Typically we set <span class="arithmatex">\(d_{\mathrm{model}}=H\times d_{k}\)</span>.</p>
+<p>2b) Self‐Attention mechanism.<br />
+For head <span class="arithmatex">\(h\)</span>, the output is</p>
+<div class="arithmatex">\[
+\mathrm{Attn}_h(X_l)
+=
+\mathrm{softmax}\!\Bigl(\tfrac{Q_h\,K_h^\top}{\sqrt{d_k}}\Bigr)
+\,V_h,
+\quad
+\in\mathbb{R}^{m\times d_k}.
+\]</div>
+<p>The <span class="arithmatex">\(\mathrm{softmax}\)</span> is applied row‐wise along the “sequence length” dimension <span class="arithmatex">\(m\)</span>.</p>
+<p>2c) Concatenate heads.<br />
+Stack these <span class="arithmatex">\(H\)</span> outputs along the feature dimension to get</p>
+<div class="arithmatex">\[
+\mathrm{ConcatHeads}(X_l)
+=
+\mathrm{concat}\!\bigl[\mathrm{Attn}_1(X_l),\,\dots,\,\mathrm{Attn}_H(X_l)\bigr]
+\;\in\;\mathbb{R}^{m\times (H\,d_k)}
+=\mathbb{R}^{m\times d_{\mathrm{model}}}.
+\]</div>
+<p>Then apply one more linear map <span class="arithmatex">\(W^O\in\mathbb{R}^{d_{\mathrm{model}}\times d_{\mathrm{model}}}\)</span> to form</p>
+<div class="arithmatex">\[
+\mathrm{MHAttention}(X_l)
+=
+\mathrm{ConcatHeads}(X_l)\,W^O
+\;\in\;\mathbb{R}^{m\times d_{\mathrm{model}}}.
+\]</div>
+<p>2d) Residual connection and LayerNorm.<br />
+In practice, the “pre‐norm” style is:</p>
+<div class="arithmatex">\[
+\widetilde{X}_l
+=
+X_l
++
+\mathrm{MHAttention}\bigl(\mathrm{LayerNorm}(X_l)\bigr).
+\]</div>
+<p>Then we pass <span class="arithmatex">\(\widetilde{X}_l\)</span> to a feed‐forward sublayer (next step in 3).<br />
+(A “post‐norm” style first adds the MHA output to <span class="arithmatex">\(X_l\)</span> then applies <span class="arithmatex">\(\mathrm{LayerNorm}\)</span>, either is widespread in practice.)</p>
+<hr />
+<h2 id="3-feedforward-sublayer">3) Feed‐Forward Sublayer<a class="headerlink" href="#3-feedforward-sublayer" title="Permanent link">&para;</a></h2>
+<p>After multi‐head attention, each Transformer block also applies a position‐wise feed‐forward network <span class="arithmatex">\(\mathrm{FFN}\)</span>.  Typically:</p>
+<div class="arithmatex">\[
+\mathrm{FFN}(x)
+=
+\max(0,\;x\,W_1 + b_1)\;W_2 + b_2,
+\]</div>
+<p>all done “per position” in the sequence.  </p>
+<p>You then add another residual connection:</p>
+<div class="arithmatex">\[
+X_{l+1}
+=
+\widetilde{X}_l
++
+\mathrm{FFN}\!\bigl(\mathrm{LayerNorm}(\widetilde{X}_l)\bigr).
+\]</div>
+<p>Hence, summarizing the full layer <span class="arithmatex">\(l\)</span>:</p>
+<div class="arithmatex">\[
+\begin{aligned}
+\text{(1) } &amp;R_1 \;=\;\mathrm{LayerNorm}(X_l),
+\\
+&amp;\widetilde{X}_l = X_l + \mathrm{MHAttention}(R_1),
+\\
+\text{(2) } &amp;R_2 \;=\;\mathrm{LayerNorm}(\widetilde{X}_l),
+\\
+&amp;X_{l+1} = \widetilde{X}_l + \mathrm{FFN}(R_2).
+\end{aligned}
+\]</div>
+<hr />
+<h2 id="4-stacking-l-layers">4) Stacking L layers<a class="headerlink" href="#4-stacking-l-layers" title="Permanent link">&para;</a></h2>
+<p>You repeat Step 2 and Step 3 for <span class="arithmatex">\(l=1,\dots,L\)</span>.<br />
+The final output <span class="arithmatex">\(X_{L}\in\mathbb{R}^{m\times d_{\mathrm{model}}}\)</span> is then interpreted as the encoder’s representation for each of the <span class="arithmatex">\(m\)</span> positions.</p>
+<hr />
+<h2 id="5-mapping-to-latent-distributions">5) Mapping to Latent Distributions<a class="headerlink" href="#5-mapping-to-latent-distributions" title="Permanent link">&para;</a></h2>
+<p>At the very end of your encoder, you produce (for each position in the sequence) the parameters of a Gaussian or discrete latent:  </p>
+<div class="arithmatex">\[
+\mu_\phi(y_{1:m})= \mathrm{Linear}(X_{L}),\quad
+\log\sigma_\phi(y_{1:m})= \mathrm{Linear}(X_{L}),
+\]</div>
+<p>giving you</p>
+<div class="arithmatex">\[
+q_{\phi}\bigl(z_{1:m}\mid y_{1:m}\bigr)
+=
+\prod_{k=1}^m
+  \mathcal{N}\!\bigl(z_k;\,\mu_{\phi,k},\,\mathrm{diag}(\sigma_{\phi,k}^2)\bigr).
+\]</div>
+<p>Then you reparameterize each <span class="arithmatex">\(z_k\)</span> with <span class="arithmatex">\(\epsilon_k\sim\mathcal{N}(0,I)\)</span> to feed into the decoder.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>Thus, to incorporate multi‐head self‐attention in the encoder:</p>
+<p>• (a) Embed each input <span class="arithmatex">\(y_k\)</span> into a common feature dimension and add positional encodings.<br />
+• (b) Pass the resulting <span class="arithmatex">\(\{X_l\}\)</span> through <span class="arithmatex">\(L\)</span> Transformer blocks, each containing (i) multi‐head self‐attention with a residual connection, and (ii) a feed‐forward sublayer with another residual.<br />
+• (c) Output <span class="arithmatex">\(\mu_\phi,\sigma_\phi\)</span> (or discrete logits) for each <span class="arithmatex">\(z_k\)</span>.  </p>
+<p>This yields an encoder structure that can capture both local and long‐range correlations along the sequence <span class="arithmatex">\(\{y_k\}_{k=1}^m\)</span>.</p>
+<h2 id="transformer-encoder-output">Transformer encoder output<a class="headerlink" href="#transformer-encoder-output" title="Permanent link">&para;</a></h2>
+<p>So, as the sequence <span class="arithmatex">\(\{y_k\}_1^m\)</span> is input into the encoder, it goes through the transformer block and the output is a sequence <span class="arithmatex">\((\mu_{\phi}, \sigma_{\phi})_{1:m}\)</span>. Is this correct?</p>
+<p><strong>Answer:</strong></p>
+<p>Yes, exactly.  In a typical “sequence-to-sequence” VAE encoder based on the Transformer, you do indeed end up with a per‐position Gaussian (or other distribution) over the latent variables.  That is,</p>
+<ol>
+<li>
+<p>You feed the entire sequence <span class="arithmatex">\(y_{1:m}\)</span> (after embedding + positional encoding) into <span class="arithmatex">\(L\)</span> layers of multi‐head attention and feed‐forward blocks.</p>
+</li>
+<li>
+<p>The Transformer’s final output is another sequence of the same length, call it </p>
+</li>
+</ol>
+<div class="arithmatex">\[
+X^{(L)} 
+= \bigl\{\;x_1^{(L)},\;x_2^{(L)},\;\dots,\;x_m^{(L)}\bigr\},
+\]</div>
+<p>where each <span class="arithmatex">\(x_k^{(L)}\in \mathbb{R}^{d_{\mathrm{model}}}\)</span>.</p>
+<ol>
+<li>You then apply linear heads (or 1×1 convolutions if you prefer) to map each <span class="arithmatex">\(x_k^{(L)}\)</span> into the mean and log‐variance of a Gaussian, i.e. </li>
+</ol>
+<div class="arithmatex">\[
+(\mu_{\phi,k},\;\log\sigma_{\phi,k}) 
+= \mathrm{Linear}\bigl(x_k^{(L)}\bigr).  
+\]</div>
+<p>Thus for each position <span class="arithmatex">\(k\)</span>, your encoder outputs  </p>
+<div class="arithmatex">\[
+\mu_{\phi,k},\; \sigma_{\phi,k}
+\;\in\;\mathbb{R}^{d},
+\]</div>
+<p>defining the approximate posterior distribution </p>
+<div class="arithmatex">\[
+q_\phi\bigl(z_k\mid y_{1:m}\bigr)
+= \mathcal{N}\!\bigl(z_k;\,\mu_{\phi,k},\,\mathrm{diag}(\sigma_{\phi,k}^2)\bigr).
+\]</div>
+<p>Hence the final result really is a sequence of mean–log‐variance pairs <span class="arithmatex">\(\{(\mu_{\phi,k}, \sigma_{\phi,k})\}_{k=1}^m\)</span>.</p>
+<h2 id="the-rest-of-vae-theory-holds">The rest of VAE theory holds<a class="headerlink" href="#the-rest-of-vae-theory-holds" title="Permanent link">&para;</a></h2>
+<p>And then the rest of the VAE theory and calculations proceed for each <span class="arithmatex">\(k\)</span> as before?</p>
+<p><strong>Answer</strong></p>
+<p>Yes, precisely. Once you have obtained  </p>
+<div class="arithmatex">\[
+\{\mu_{\phi,k},\,\sigma_{\phi,k}\}_{k=1}^m,
+\]</div>
+<p>each pair describes a latent posterior for position <span class="arithmatex">\(k\)</span> via  </p>
+<div class="arithmatex">\[
+q_{\phi}\bigl(z_k \mid y_{1:m}\bigr)
+=\mathcal{N}\!\bigl(z_k;\,\mu_{\phi,k},\;\mathrm{diag}(\sigma_{\phi,k}^2)\bigr).
+\]</div>
+<p>From there, the remainder of the VAE machinery applies exactly as before:</p>
+<p>1) Reparameterize<br />
+   For each <span class="arithmatex">\(k\)</span>, you draw  </p>
+<div class="arithmatex">\[
+     z_k
+     = \mu_{\phi,k} + \sigma_{\phi,k}\,\odot\,\epsilon_k,
+     \quad
+     \epsilon_k\sim\mathcal{N}(0,I_d).
+\]</div>
+<p>2) Decode<br />
+   You pass <span class="arithmatex">\(\{z_k\}_{k=1}^m\)</span> into your decoder to obtain  </p>
+<div class="arithmatex">\[
+     p_{\theta}\bigl(y_k \mid z_k\bigr)
+     \quad
+     (\text{or possibly } p_{\theta}\bigl(y_{k} \mid z_{1:m}\bigr)\text{, depending on your chosen factorization}).
+\]</div>
+<p>3) ELBO<br />
+   You then form the usual sum of reconstruction minus KL terms. For instance, if you assume factorized priors on <span class="arithmatex">\(\{z_k\}\)</span>, the ELBO is  </p>
+<div class="arithmatex">\[
+     \mathcal{L}(\theta,\phi)
+     = \sum_{k=1}^m
+     \Bigl\{
+       \mathbb{E}_{q_{\phi}(z_k\mid y_{1:m})}
+       \bigl[\log p_{\theta}(y_k \mid z_k)\bigr]
+       \;-\;
+       D_{\mathrm{KL}}\!\bigl(q_{\phi}(z_k\mid y_{1:m})
+             \,\big\|\,
+             p(z_k)\bigr)
+     \Bigr\}.
+\]</div>
+<p>(Of course, if you opted for a Markov or correlated prior among <span class="arithmatex">\(\{z_k\}\)</span>, you would just update the KL term accordingly.)</p>
+<p>In short: each position <span class="arithmatex">\(k\)</span> gets its own latent distribution from the encoder’s Transformer output, and everything else—sampling <span class="arithmatex">\(z_k\)</span>, decoding, and summing into the ELBO—proceeds just as in the usual VAE framework, only repeated across the sequence index <span class="arithmatex">\(k\)</span>.</p>
+<h2 id="decoder-also-as-a-transformer">Decoder also as a transformer<a class="headerlink" href="#decoder-also-as-a-transformer" title="Permanent link">&para;</a></h2>
+<p>In principle, you could replace the decoder as well with a transformer structure. Is this possible?</p>
+<p><strong>Answer:</strong></p>
+<p>Yes, absolutely.  Just as you used a Transformer encoder for modeling correlations in the input sequence, you can similarly replace your decoder network with a Transformer.  In that case, after sampling the latents <span class="arithmatex">\(\{z_k\}_{k=1}^m\)</span>, you feed them into a Transformer‐based decoder network that outputs parameters of the likelihood for <span class="arithmatex">\(\{y_k\}\)</span>.  Below is a high‐level outline.</p>
+<p>1) Latent sequence as decoder input<br />
+   After you sample  </p>
+<div class="arithmatex">\[
+     z_k \;=\;\mu_{\phi,k} + \sigma_{\phi,k}\odot \epsilon_k,\quad
+     \epsilon_k\sim \mathcal{N}(0,I_d),
+\]</div>
+<p>for each <span class="arithmatex">\(k\)</span>, you form a sequence <span class="arithmatex">\(Z = \{z_1,z_2,\dots,z_m\}\)</span>.  Alternatively, you might downsample <span class="arithmatex">\(\{z_k\}\)</span> or use a single global latent if your architecture differs.  </p>
+<p>2) Option A: direct feed into a Transformer decoder<br />
+   In the simplest approach, treat <span class="arithmatex">\(\{z_k\}\)</span> as the “tokens” for the decoder, embed each <span class="arithmatex">\(z_k\)</span> into a dimension <span class="arithmatex">\(d_{\mathrm{model}}\)</span>, add positional encoding, and apply the usual multi‐head self‐attention + feed‐forward layers to produce a sequence of outputs </p>
+<div class="arithmatex">\[
+     X_{\mathrm{dec}} = \mathrm{TransformerDecoder}(Z).
+\]</div>
+<p>Then a final linear head can produce <span class="arithmatex">\(\{\mu_{\theta,k},\sigma_{\theta,k}\}\)</span> for <span class="arithmatex">\(p_{\theta}(y_k\mid z_{1:m})\)</span> (or for a factorized version <span class="arithmatex">\(p_{\theta}(y_k\mid z_k)\)</span>, depending on your modeling choice).</p>
+<p>3) Option B: cross‐attention decoder<br />
+   If your decoding process benefits from “cross‐attention” to the latents, you can adopt the common “encoder–decoder” Transformer pattern:<br />
+   • The latent sequence <span class="arithmatex">\(Z\)</span> passes through a purely feed‐forward or self‐attention “encoder”, producing some representation <span class="arithmatex">\(H = \mathrm{Enc}(Z)\)</span>.<br />
+   • The decoder receives some query positions (e.g., an index for each output location <span class="arithmatex">\(k\)</span>), and uses cross‐attention over <span class="arithmatex">\(H\)</span> to produce the likelihood parameters for <span class="arithmatex">\(y_k\)</span>.<br />
+   This is analogous to standard Transformers in machine translation, except now the “input sentence” is your latent code sequence <span class="arithmatex">\(Z\)</span>.</p>
+<p>4) Autoregressive vs. non‐autoregressive decoding<br />
+   • If you want a purely parallel reconstruction of <span class="arithmatex">\(\{y_k\}\)</span>, the decoder can be non‐autoregressive and simply produce <span class="arithmatex">\(\bigl(\mu_{\theta,k},\sigma_{\theta,k}\bigr)\)</span> for each element in one shot.<br />
+   • If you prefer an autoregressive model for each coordinate or token of <span class="arithmatex">\(y_k\)</span>, you could implement a Transformer with causal masking on the output side, letting it attend left‐to‐right (though that’s more common in purely “Transformer language models”).</p>
+<p>5) ELBO stays the same<br />
+   Regardless of the decoder’s architecture, the ELBO expression remains</p>
+<div class="arithmatex">\[
+     \sum_{k=1}^m
+       \mathbb{E}_{q_{\phi}(z_k\mid y_{1:m})}\bigl[\log p_{\theta}(y_k\mid z_{1:m})\bigr]
+     \;-\;
+     \sum_{k=1}^m
+       D_{\mathrm{KL}}\bigl(q_\phi(z_k\mid y_{1:m}) \,\|\, p(z_k)\bigr),
+\]</div>
+<p>if your prior factorizes.  Of course, if the decoder condition is <span class="arithmatex">\(\{z_k\}_{k=1}^m\)</span> in some particular attention structure, you just code that into <span class="arithmatex">\(\log p_{\theta}(y_k\mid z_{1:m})\)</span>.</p>
+<p>6) Summary<br />
+   • Yes, you can replace the decoder with a Transformer in the exact same way you replaced the encoder.<br />
+   • You either feed your latent sequence into a self‐attention stack or do a more sophisticated “encoder–decoder” cross‐attention, depending on your generative design.<br />
+   • The rest of the VAE pipeline—reparameterizing the latents, computing the reconstruction log‐likelihood, summing up the KL terms—remains unchanged in principle.</p>
+<h2 id="differentiability-with-transformers">Differentiability with transformers<a class="headerlink" href="#differentiability-with-transformers" title="Permanent link">&para;</a></h2>
+<p>The training of the VAE architecture requires differentiability in the chosen architecture. Using transformers as encoders and maybe even the decoder does not affect the differentiability?</p>
+<p><strong>Answer:</strong></p>
+<p>Precisely—multi‐head self‐attention, feed‐forward layers, and other standard Transformer components are all built from differentiable operations (i.e., matrix multiplications, softmax, layer normalizations, etc.).  Consequently:</p>
+<p>1) Transformers are differentiable as feed‐forward blocks.<br />
+   − Each sub‐operation (linear projections for queries/keys/values, softmax, residual connections, etc.) is continuous and differentiable w.r.t. its parameters.<br />
+   − Autograd frameworks (TensorFlow, PyTorch, JAX, etc.) can backpropagate through them just like through MLPs or convolutions.</p>
+<p>2) The reparameterization trick remains the same.<br />
+   − You sample the latent variable(s) z using the usual<br />
+     z = μ + σ ⊙ ε, ε ∼ 𝒩(0, I).<br />
+   − This injects noise into z in a way that still allows backprop to pass through μ and σ.<br />
+   − Whether μ and σ come from an MLP, convolution, or Transformer is immaterial; the gradient flows without problem.</p>
+<p>3) The ELBO’s reconstruction term is still differentiable.<br />
+   − The log pθ(y | z) is likewise a feed‐forward pass (in this case, the decoder).<br />
+   − If you choose a Transformer decoder, it, too, is composed of differentiable layers that can be optimized via backprop.</p>
+<p>Hence using Transformers does not break or hamper differentiability.  You can train a “Transformer‐VAE” end‐to‐end exactly the same way as with other neural architectures, leveraging any standard automatic differentiation software.</p>
 
 
 
